@@ -365,6 +365,30 @@ END:VCALENDAR`;
               {timerData.formatted_time}
             </span>
           )}
+          {response.meta.current_ipp !== undefined && (
+            <span style={{
+              padding: "0.25rem 0.75rem",
+              backgroundColor: "#dbeafe",
+              color: "#1e40af",
+              fontSize: "0.75rem",
+              fontWeight: "600",
+              border: "1px solid #93c5fd"
+            }}>
+              IPP: {response.meta.current_ipp.toFixed(0)}
+            </span>
+          )}
+          {response.meta.rsi !== undefined && (
+            <span style={{
+              padding: "0.25rem 0.75rem",
+              backgroundColor: response.meta.rsi > 0 ? "#dcfce7" : "#fee2e2",
+              color: response.meta.rsi > 0 ? "#16a34a" : "#dc2626",
+              fontSize: "0.75rem",
+              fontWeight: "600",
+              border: `1px solid ${response.meta.rsi > 0 ? "#86efac" : "#fecaca"}`
+            }}>
+              RSI: {response.meta.rsi > 0 ? "+" : ""}{response.meta.rsi.toFixed(1)}%
+            </span>
+          )}
           {isFollowUp && (
             <span style={{
               padding: "0.25rem 0.75rem",

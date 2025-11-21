@@ -1,15 +1,13 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ActionModal } from "./ActionModal";
 
 /**
  * Hero section with two-column layout:
- * - Left: H1 + H2 microcopy + CTAs (primary opens modal)
+ * - Left: H1 + H2 microcopy + CTAs (primary navigates to app)
  * - Right: SVG device mockup (falls below fold on mobile)
  * - Desktop: side-by-side | Mobile: stacked (CTA primary)
  */
 export function Hero() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const appUrl = import.meta.env.VITE_FRONTEND_URL || "http://localhost:3000";
 
   return (
     <section className="container py-16 md:py-24">
@@ -27,19 +25,19 @@ export function Hero() {
           <div className="flex flex-wrap gap-4 pt-4">
             <Button
               size="lg"
-              onClick={() => setIsModalOpen(true)}
-              aria-label="Get Action - opens modal"
+              asChild
+              aria-label="Get Action - navigate to app"
               className="transition-smooth hover:scale-105"
             >
-              Get Action
+              <a href={appUrl}>Get Action</a>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              onClick={() => setIsModalOpen(true)}
+              asChild
               className="transition-smooth"
             >
-              See Demo
+              <a href="/metrics">Our Metrics</a>
             </Button>
           </div>
 
@@ -49,14 +47,11 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Right: SVG mockup (inline for perf) */}
+        {/* Right: SVG mockup */}
         <div className="order-first lg:order-last flex justify-center lg:justify-end">
           <DeviceMockup />
         </div>
       </div>
-
-      {/* Modal (code-split) */}
-      <ActionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </section>
   );
 }

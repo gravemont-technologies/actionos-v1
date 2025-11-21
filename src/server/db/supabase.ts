@@ -80,6 +80,58 @@ export type AnalyticsEventsInsert = Omit<
   "id" | "recorded_at"
 >;
 
+export type StepMetricsRow = {
+  id: string;
+  step_id: string;
+  profile_id: string;
+  signature: string;
+  ipp_score: number | null;
+  magnitude: number | null;
+  reach: number | null;
+  depth: number | null;
+  but_score: number | null;
+  ease_score: number | null;
+  alignment_score: number | null;
+  friction_score: number | null;
+  had_unexpected_wins: boolean;
+  unexpected_wins_description: string | null;
+  estimated_minutes: number | null;
+  actual_minutes: number | null;
+  taa_score: number | null;
+  outcome_description: string | null;
+  completed_at: string;
+  created_at: string;
+};
+
+export type StepMetricsInsert = Omit<StepMetricsRow, "id" | "created_at" | "ipp_score" | "but_score" | "taa_score">;
+
+export type UserDailyMetricsRow = {
+  id: string;
+  profile_id: string;
+  date: string;
+  daily_ipp: number;
+  seven_day_ipp: number;
+  thirty_day_ipp: number;
+  all_time_ipp: number;
+  daily_but: number;
+  seven_day_but: number;
+  thirty_day_but: number;
+  icr: number;
+  s1sr: number;
+  rsi: number;
+  taa: number;
+  hlad: number;
+  steps_completed: number;
+  steps_with_impact: number;
+  high_leverage_steps: number;
+  insights_created: number;
+  insights_converted: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserDailyMetricsInsert = Omit<UserDailyMetricsRow, "id" | "created_at" | "updated_at">;
+
 /* -----------------------------------------------------
  * DATABASE TYPE
  * ---------------------------------------------------*/
@@ -111,6 +163,16 @@ export type Database = {
         Row: AnalyticsEventsRow;
         Insert: AnalyticsEventsInsert;
         Update: never;
+      };
+      step_metrics: {
+        Row: StepMetricsRow;
+        Insert: StepMetricsInsert;
+        Update: never;
+      };
+      user_daily_metrics: {
+        Row: UserDailyMetricsRow;
+        Insert: UserDailyMetricsInsert;
+        Update: Partial<UserDailyMetricsInsert>;
       };
     };
   };

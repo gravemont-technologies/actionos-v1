@@ -22,11 +22,10 @@ export default function Landing() {
       
       <main className="flex-1">
         <Hero />
-        <Features />
+        <HowItWorks />
         <ActionGuaranteeBadge />
         <TestimonialStrip />
         <MetricsMicrocard />
-        <HowItWorks />
       </main>
       
       <Footer />

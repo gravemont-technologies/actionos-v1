@@ -3,23 +3,21 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { ActionModal } from "./ActionModal";
 
 /**
  * Sticky navigation with logo, theme toggle, and auth CTAs
  * - Logo left
  * - Theme toggle center-right
- * - Auth buttons right (primary "Get Action" + ghost "See Demo")
+ * - Auth buttons right (primary navigates to app, secondary to metrics)
  * - Fully keyboard accessible with focus rings
  * - Gracefully handles missing Clerk configuration
  */
 export function Nav() {
   const { theme, setTheme } = useTheme();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Check if Clerk is configured
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const appUrl = import.meta.env.VITE_FRONTEND_URL || "http://localhost:3000";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -70,27 +68,22 @@ export function Nav() {
             <>
               <Button 
                 variant="ghost" 
-                size="sm"
-                onClick={() => setIsModalOpen(true)}
+                size="sm" 
+                asChild
               >
-                See Demo
+                <a href="/metrics">Our Metrics</a>
               </Button>
               <Button 
                 size="sm" 
                 aria-label="Get Action"
-                onClick={() => setIsModalOpen(true)}
+                asChild
               >
-                Get Action
+                <a href={appUrl}>Get Action</a>
               </Button>
             </>
           )}
         </div>
       </div>
-
-      {/* Modal for non-authenticated users */}
-      {!hasClerkKey && (
-        <ActionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
-      )}
     </nav>
   );
 }

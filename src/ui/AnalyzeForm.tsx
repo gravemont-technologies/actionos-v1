@@ -516,7 +516,7 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", marginBottom: "0.5rem" }}>
           <div style={{ flex: 1 }}>
         <h2>Describe your situation</h2>
-            <p>Situation → Analyze → Actions → Review 🏆 Achieve J</p>
+            <p>Situation → Analyze → Actions → Review 🏆 Achieve</p>
             <p className="text-xs text-muted-foreground mt-1">
               Insights are not persisted—leaving the page or closing the app clears every suggestion.
             </p>
@@ -541,7 +541,7 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
       {renderTextInput("stakeholders", formData.stakeholders, handleChange, errors, "Stakeholders (optional)")}
       {renderTextInput("resources", formData.resources, handleChange, errors, "Resources (optional)")}
 
-      <section className="normalized-preview">
+      <section className="normalized-preview" style={{ display: "none" }}>
         <h3>Normalization Preview</h3>
         <pre>{JSON.stringify(normalizedPreview, null, 2)}</pre>
         <small>Signature (client-computed): {signature || "computing..."}</small>
@@ -556,8 +556,28 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
         </div>
       )}
 
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Analyzing..." : "Analyze & Get Actions"}
+      <button
+        type="submit"
+        disabled={submitting}
+        aria-label="Generate action"
+        style={{
+          width: "100%",
+          padding: "1rem",
+          background: submitting ? "var(--muted, #ccc)" : "#dc2626",
+          color: submitting ? "var(--muted-foreground, #666)" : "#FFFFFF",
+          border: "none",
+          borderRadius: "8px",
+          boxShadow: submitting ? "none" : "0 6px 18px rgba(220,38,38,0.18)",
+          fontWeight: "700",
+          fontSize: "1rem",
+          cursor: submitting ? "not-allowed" : "pointer",
+          transition: "transform 120ms ease, box-shadow 120ms ease",
+          marginTop: "1rem"
+        }}
+        onMouseDown={(e) => { if (!submitting) (e.currentTarget.style.transform = 'translateY(1px)'); }}
+        onMouseUp={(e) => { if (!submitting) (e.currentTarget.style.transform = 'translateY(0)'); }}
+      >
+        {submitting ? "Analyzing..." : "ACTION"}
       </button>
     </form>
     </>

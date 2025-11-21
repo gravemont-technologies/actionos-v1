@@ -3,11 +3,14 @@ import "dotenv/config";
 import "./config/env.js";
 import express from "express";
 import { SignatureCache } from "./cache/signatureCache.js";
+import authRouter from "./routes/auth.js";
 import analyzeRouter from "./routes/analyze.js";
 import feedbackRouter from "./routes/feedback.js";
 import onboardingRouter from "./routes/onboarding.js";
 import healthRouter from "./routes/health.js";
 import insightsRouter from "./routes/insights.js";
+import feedbackCommentsRouter from "./routes/feedbackComments.js";
+import metricsRouter from "./routes/metrics.js";
 import { ProfileStore } from "./store/profileStore.js";
 import { requestContextMiddleware } from "./middleware/requestContext.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
@@ -72,11 +75,14 @@ app.locals.signatureCache = new SignatureCache();
 app.locals.profileStore = new ProfileStore();
 
 // 6. Routes (with specific middleware applied in route files)
+app.use("/api/auth", authRouter);
 app.use("/api/health", healthRouter);
 app.use("/api/onboarding", onboardingRouter);
 app.use("/api/analyze", analyzeRouter);
 app.use("/api/step-feedback", feedbackRouter);
 app.use("/api/insights", insightsRouter);
+app.use("/api/feedback-comments", feedbackCommentsRouter);
+app.use("/api/metrics", metricsRouter);
 
 // 7. 404 handler
 app.use(notFoundHandler);

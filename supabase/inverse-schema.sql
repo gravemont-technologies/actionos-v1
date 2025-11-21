@@ -19,9 +19,13 @@ DROP FUNCTION IF EXISTS redact_pii(TEXT) CASCADE;
 DROP FUNCTION IF EXISTS normalize_for_signature(TEXT) CASCADE;
 
 -- Drop tables (CASCADE handles foreign keys and dependent objects)
+-- Order: dependent tables first, then referenced tables
+DROP TABLE IF EXISTS user_daily_metrics CASCADE;
+DROP TABLE IF EXISTS step_metrics CASCADE;
 DROP TABLE IF EXISTS token_usage CASCADE;
 DROP TABLE IF EXISTS analytics_events CASCADE;
 DROP TABLE IF EXISTS feedback_records CASCADE;
+DROP TABLE IF EXISTS feedback_comments CASCADE;
 DROP TABLE IF EXISTS active_steps CASCADE;
 DROP TABLE IF EXISTS signature_cache CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
@@ -35,7 +39,7 @@ DROP TABLE IF EXISTS profiles CASCADE;
 -- ============================================================================
 -- SELECT table_name FROM information_schema.tables 
 --   WHERE table_schema = 'public' 
---   AND table_name IN ('profiles', 'signature_cache', 'active_steps', 'feedback_records', 'analytics_events', 'token_usage');
+--   AND table_name IN ('profiles', 'signature_cache', 'active_steps', 'feedback_records', 'analytics_events', 'token_usage', 'feedback_comments', 'step_metrics', 'user_daily_metrics');
 -- Should return 0 rows if teardown successful
 --
 -- SELECT routine_name FROM information_schema.routines 

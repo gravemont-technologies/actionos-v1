@@ -12,6 +12,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { OnboardingQuiz } from "./OnboardingQuiz";
 import { AppLayout, AnalyzeView, DashboardView } from "./AppLayout";
+import Feedback from "./pages/Feedback";
 import { InsightsView } from "./pages/InsightsView";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
@@ -86,6 +87,7 @@ function AppRoutes() {
             <Route index element={<Navigate to="/app/analyze" replace />} />
             <Route path="analyze" element={<AnalyzeView />} />
             <Route path="dashboard" element={<DashboardView />} />
+            <Route path="feedback" element={<Feedback />} />
             <Route path="insights" element={<InsightsView />} />
           </Route>
 

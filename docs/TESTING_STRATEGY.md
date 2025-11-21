@@ -43,10 +43,13 @@ This document defines a rigorous testing strategy for Action OS MVP, covering un
 
 **1. New User Onboarding**
 - [ ] User signs up with Clerk
+- [ ] **NEW:** Frontend checks `/api/auth/status` to determine routing
+- [ ] User is redirected to `/onboarding` if status is `hasProfile: false`
 - [ ] User completes onboarding quiz (all 4 questions)
 - [ ] Profile is created with baseline IPP/BUT scores
-- [ ] User is redirected to /app/analyze
+- [ ] User is redirected to `/app/analyze`
 - [ ] Profile persists across sessions
+- [ ] **NEW:** Subsequent logins check `/api/auth/status` and route directly to `/app`
 
 **2. Analysis Submission**
 - [ ] User fills required fields (situation, goal, constraints, current_steps)

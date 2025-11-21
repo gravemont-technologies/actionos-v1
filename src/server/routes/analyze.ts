@@ -20,6 +20,7 @@ import { analyzeRateLimiter } from "../middleware/rateLimiter.js";
 import { longTimeoutMiddleware } from "../middleware/timeout.js";
 import { ValidationError, ExternalServiceError, RateLimitError } from "../middleware/errorHandler.js";
 import { logger } from "../utils/logger.js";
+import { getProfileMetrics } from "../utils/metricsCalculator.js";
 
 const router = Router();
 
@@ -102,6 +103,14 @@ router.post("/", validateOwnership, async (req, res, next) => {
     // This ensures old cached responses get deeper_dive fallbacks
     const guardedResponse = enforceResponseGuards(cacheHit.response, normalized.signature);
     guardedResponse.meta.cached = true;
+    
+    // Inject current metrics into cached response
+    const currentMetrics = await getProfileMetrics(payload.profileId);
+    if (currentMetrics) {
+      guardedResponse.meta.current_ipp = currentMetrics.seven_day_ipp;
+      guardedResponse.meta.current_but = currentMetrics.seven_day_but;
+      guardedResponse.meta.rsi = currentMetrics.rsi;
+    }
     
     trackEvent("analyze.response", {
       profileId: payload.profileId,
@@ -188,6 +197,14 @@ router.post("/", validateOwnership, async (req, res, next) => {
 
     const finalPayload = enforceResponseGuards(parsedResponse, normalized.signature);
     finalPayload.meta.cached = false;
+    
+    // Inject current metrics into response
+    const currentMetrics = await getProfileMetrics(payload.profileId);
+    if (currentMetrics) {
+      finalPayload.meta.current_ipp = currentMetrics.seven_day_ipp;
+      finalPayload.meta.current_but = currentMetrics.seven_day_but;
+      finalPayload.meta.rsi = currentMetrics.rsi;
+    }
 
     // Log prompt version for tracking
     requestLogger.debug({ promptVersion: prompt.version, signature: normalized.signature }, "Prompt version used");

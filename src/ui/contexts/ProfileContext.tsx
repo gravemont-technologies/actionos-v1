@@ -68,8 +68,9 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await api.get<{ profile: { profile_id: string } | null }>(
-          `/api/onboarding/profile?user_id=${user.id}`
+        // Use the dedicated auth status endpoint which is more robust and handles race conditions
+        const data = await api.get<{ hasProfile: boolean; profileId: string | null }>(
+          "/api/auth/status"
         );
         
         // Check if component is still mounted and effect hasn't been cancelled
@@ -77,8 +78,8 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
           return;
         }
         
-        if (data.profile?.profile_id) {
-          const fetchedProfileId = data.profile.profile_id;
+        if (data.hasProfile && data.profileId) {
+          const fetchedProfileId = data.profileId;
           setProfileIdState(fetchedProfileId);
           // Store in localStorage as backup
           if (typeof window !== "undefined") {
@@ -87,13 +88,17 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
         } else {
           // No profile found - user needs to complete onboarding
           setProfileIdState(null);
+          // Clear any stale localStorage to prevent race conditions
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("action_os_profile_id");
+          }
         }
       } catch (err) {
         // Only update state if not cancelled
         if (isCancelled) {
           return;
         }
-        console.error("Failed to fetch profile:", err);
+        console.error("Failed to fetch profile status:", err);
         setError((err as Error).message);
         // Don't set profileId to null on error - might be network issue
       } finally {

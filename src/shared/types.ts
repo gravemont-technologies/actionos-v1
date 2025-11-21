@@ -46,6 +46,9 @@ export type LLMResponse = {
     cached: boolean;
     timestamp: string;
     title?: string;
+    current_ipp?: number; // Current 7-day IPP
+    current_but?: number; // Current 7-day BUT
+    rsi?: number; // Reality Shift Index
   };
 };
 

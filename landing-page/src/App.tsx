@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
+import Metrics from "./pages/Metrics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
+              <Route path="/metrics" element={<Metrics />} />
               <Route path="/sign-in/*" element={<SignIn />} />
               <Route path="/sign-up/*" element={<SignUp />} />
               <Route 

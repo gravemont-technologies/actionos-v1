@@ -35,7 +35,8 @@
     "precommit": "npm run lint",
     "test:build": "npm run build && echo 'Build successful'",
     "test:types": "npm run lint && echo 'Type check passed'",
-    "health": "curl http://localhost:3001/api/health || echo 'Server not running'"
+    "health": "curl http://localhost:3001/api/health || echo 'Server not running'",
+    "db:apply-schema": "node scripts/apply-schema.mjs"
   },
   "keywords": [],
   "author": "",

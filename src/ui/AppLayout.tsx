@@ -23,8 +23,10 @@ export function AppLayout() {
   const [abandonedSteps, setAbandonedSteps] = useState<string[]>([]);
 
   // Determine current view from pathname
-  const currentView = location.pathname.includes("/dashboard") 
-    ? "dashboard" 
+  const currentView = location.pathname.includes("/dashboard")
+    ? "dashboard"
+    : location.pathname.includes("/feedback")
+    ? "feedback"
     : location.pathname.includes("/insights")
     ? "insights"
     : "analyze";
@@ -185,8 +187,36 @@ export function AppLayout() {
             >
               INSIGHTS
             </button>
+            <button
+              onClick={() => navigate("/app/feedback")}
+              className={`px-4 py-2 transition-all ${
+                currentView === "feedback"
+                  ? "glow-cyan"
+                  : "ghost-white"
+              }`}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: currentView === "feedback" ? 600 : 400,
+              }}
+            >
+              FEEDBACK
+            </button>
           </nav>
         </header>
+
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => navigate('/')}
+            className="px-3 py-2 rounded border hover:bg-accent/10"
+            style={{ background: 'transparent', cursor: 'pointer' }}
+          >
+            Back to Landing
+          </button>
+        </div>
+
         <Outlet />
       </div>
     </div>

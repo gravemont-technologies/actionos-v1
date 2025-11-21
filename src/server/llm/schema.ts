@@ -56,6 +56,9 @@ export const responseSchema = z
         signature_hash: z.string().min(1),
         cached: z.boolean(),
         timestamp: z.string().min(1),
+        current_ipp: z.number().optional(), // Current 7-day IPP
+        current_but: z.number().optional(), // Current 7-day BUT
+        rsi: z.number().optional(), // Reality Shift Index
       })
       .strict(),
   })

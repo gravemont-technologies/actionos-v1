@@ -21,7 +21,7 @@ export function Hero() {
           <h1 className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl lg:text-6xl text-foreground">
             Stop planning. Start executing.
           </h1>
-          
+
           <h2 className="text-lg md:text-xl text-muted-foreground max-w-xl">
             Describe your situation. Receive tailored, implementable steps. Report results. Recalibrate.
           </h2>
