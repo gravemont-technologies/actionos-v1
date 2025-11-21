@@ -36,8 +36,7 @@
     "test:build": "npm run build && echo 'Build successful'",
     "test:types": "npm run lint && echo 'Type check passed'",
     "health": "curl http://localhost:3001/api/health || echo 'Server not running'",
-    "db:apply-schema": "node scripts/apply-schema.mjs"
-    ,
+    "db:apply-schema": "node scripts/apply-schema.mjs",
     "test:feedback": "tsx scripts/test-feedback-route.ts"
   },
   "keywords": [],
@@ -89,6 +88,7 @@
     "jspdf": "^3.0.3",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.4.6",
+    "node-fetch": "^3.3.2",
     "pino": "^9.5.0",
     "pino-pretty": "^13.0.0",
     "react": "^19.2.0",

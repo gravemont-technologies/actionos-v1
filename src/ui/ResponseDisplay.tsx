@@ -84,6 +84,19 @@ export function ResponseDisplay({ response, onNewAnalysis, situation, goal, cons
   const handleSaveInsight = async (signature: string) => {
     if (!authHeaders || saving || isSaved) return;
 
+    // Check server-side project count first to avoid optimistic updates that will be rejected
+    try {
+      const countRes = await api.get<{ count: number }>("/api/insights/count", { headers: authHeaders });
+      if (typeof countRes.count === "number" && countRes.count >= 5) {
+        // Inform user (minimal UI) and abort save
+        alert("You have reached the maximum of 5 saved projects. Delete an existing project before saving a new one.");
+        return;
+      }
+    } catch (err) {
+      // If the count check fails, log and continue with save attempt (server will enforce limit)
+      console.warn("Failed to check project count before save, will attempt save and rely on server enforcement.", err);
+    }
+
     // Optimistic update
     setIsSaved(true);
     setSaving(true);
@@ -113,8 +126,15 @@ export function ResponseDisplay({ response, onNewAnalysis, situation, goal, cons
         if (retryCount > maxRetries) {
           // Revert optimistic update on final failure
           setIsSaved(false);
-          // Error logged silently
-          console.error("Failed to save insight:", (error as Error).message);
+          // If server rejected due to project limit, show a clear message
+          const status = (error as any)?.status;
+          const responseData = (error as any)?.response?.data || (error as any)?.data;
+          if (status === 403 && responseData?.error === "PROJECT_LIMIT_REACHED") {
+            alert("Save failed: you have reached the maximum of 5 saved projects. Delete an existing project before saving a new one.");
+          } else {
+            // Error logged silently
+            console.error("Failed to save insight:", (error as Error).message);
+          }
         } else {
           // Wait before retry (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));

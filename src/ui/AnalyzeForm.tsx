@@ -68,6 +68,8 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
   const [followUpError, setFollowUpError] = useState<string | null>(null); // Separate error state for follow-up
   const [isSaved, setIsSaved] = useState(false); // NEW: Track saved status
   const [isTransitioning, setIsTransitioning] = useState(false);
+  // New: show a thin top progress bar while routing/awaiting analysis
+  const [showProgressBar, setShowProgressBar] = useState(false);
 
   const payload: AnalyzeRequestInput | null = useMemo(
     () => {
@@ -234,6 +236,7 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
 
     setSubmitting(true);
     setIsTransitioning(true);
+    setShowProgressBar(true);
     
     // Black screen for 800ms
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -287,6 +290,7 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
     } finally {
       setSubmitting(false);
       setIsTransitioning(false);
+      setShowProgressBar(false);
     }
   };
 
@@ -497,6 +501,22 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
 
   return (
     <>
+      {showProgressBar && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          height: "4px",
+          width: "100%",
+          zIndex: 10000,
+          background: "linear-gradient(90deg,#00b4d8,#0066ff)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          animation: "progressBarAnim 1.2s linear infinite"
+        }} />
+      )}
+
+      <style>{`@keyframes progressBarAnim { 0% { transform: translateX(-100%); } 50% { transform: translateX(0%); } 100% { transform: translateX(100%); } }`}</style>
+
       {isTransitioning && (
         <div style={{
           position: "fixed",
@@ -553,31 +573,6 @@ export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
             <strong>Error</strong>
           </div>
           <pre className="error-content">{serverError}</pre>
-        </div>
-      )}
-
-      {submitting && (
-        <div style={{
-          marginBottom: "1rem",
-          background: "var(--background, #000)",
-          border: "1px solid var(--accent-cyan, #00FFFF)",
-          borderRadius: "4px",
-          overflow: "hidden",
-          height: "8px"
-        }}>
-          <div style={{
-            height: "100%",
-            background: "linear-gradient(90deg, var(--accent-cyan, #00FFFF), var(--accent-magenta, #FF00FF))",
-            animation: "loadingBar 2s ease-in-out infinite",
-            transformOrigin: "left"
-          }} />
-          <style>{`
-            @keyframes loadingBar {
-              0% { transform: scaleX(0.1); opacity: 0.6; }
-              50% { transform: scaleX(0.7); opacity: 1; }
-              100% { transform: scaleX(0.95); opacity: 0.8; }
-            }
-          `}</style>
         </div>
       )}
 

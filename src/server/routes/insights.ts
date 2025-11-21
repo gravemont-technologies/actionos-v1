@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { clerkAuthMiddleware } from "../middleware/clerkAuth.js";
 import { SignatureCache } from "../cache/signatureCache.js";
+import { getSupabaseClient } from "../db/supabase.js";
 import { ValidationError, AuthenticationError } from "../middleware/errorHandler.js";
 import { logger } from "../utils/logger.js";
 import { insightsRateLimiter } from "../middleware/rateLimiter.js";
@@ -63,6 +64,28 @@ router.post("/save", insightsRateLimiter, requireUserId, async (req, res, next) 
         );
       }
       return res.json({ status: "success", message: "Already saved" });
+    }
+
+    // Enforce hard project limit: maximum 5 saved insights (projects) per user
+    try {
+      const supabase = getSupabaseClient();
+      const { count, error: countError } = await supabase
+        .from("signature_cache")
+        .select("signature", { count: "exact", head: true })
+        .eq("user_id", req.userId)
+        .eq("is_saved", true)
+        .is("expires_at", null);
+
+      if (countError) {
+        // Log and continue (allow save) - don't block saves on counting errors
+        requestLogger.warn({ error: countError }, "Failed to get saved insights count");
+      } else if (typeof count === "number" && count >= 5) {
+        // If the user already has 5 saved projects, block new saves
+        return res.status(403).json({ error: "PROJECT_LIMIT_REACHED", message: "Maximum 5 projects allowed." });
+      }
+    } catch (err) {
+      // Non-fatal: if counting fails, allow save but log
+      requestLogger.warn({ err }, "Count check failed when saving insight");
     }
 
     // Save insight (atomic operation)
@@ -187,6 +210,27 @@ router.delete("/:signature", insightsRateLimiter, requireUserId, async (req, res
   try {
     await cache.unsaveInsight(req.params.signature, req.userId!); // Guaranteed non-null by requireUserId
     return res.json({ status: "success" });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Get count of saved insights (projects) for current user
+router.get("/count", insightsRateLimiter, requireUserId, async (req, res, next) => {
+  try {
+    const supabase = getSupabaseClient();
+    const { count, error } = await supabase
+      .from("signature_cache")
+      .select("signature", { count: "exact", head: true })
+      .eq("user_id", req.userId)
+      .eq("is_saved", true)
+      .is("expires_at", null);
+
+    if (error) {
+      return next(error);
+    }
+
+    return res.json({ status: "success", count: count ?? 0 });
   } catch (error) {
     return next(error);
   }

@@ -148,13 +148,7 @@ export function Dashboard() {
     realized: number;
   }>>([]);
   const [loadingSparkline, setLoadingSparkline] = useState(false);
-  const [tokenUsage, setTokenUsage] = useState<{
-    used: number;
-    remaining: number;
-    limit: number;
-    percentage: number;
-  } | null>(null);
-  const [loadingTokenUsage, setLoadingTokenUsage] = useState(false);
+  const [projectCount, setProjectCount] = useState<number>(0);
   const navigate = useNavigate();
   const fetchingRef = useRef(false); // Prevent parallel calls
   const abortControllerRef = useRef<AbortController | null>(null); // Cancel requests on unmount/dependency change
@@ -309,6 +303,29 @@ export function Dashboard() {
         }
       ),
 
+      // Fetch saved projects count (enforced server-side)
+      createSafeFetch(
+        () => api.get<{ count: number }>(`/api/insights/count`, { headers, signal }).then(res => res.count ?? 0),
+        {
+          signal,
+          isMounted: () => isMountedRef.current,
+          setLoading: () => {}, // tiny call - no dedicated loading state
+          setData: (data) => {
+            setProjectCount(data);
+          },
+          setError: (error) => {
+            // Keep projectCount at 0 on error
+            setProjectCount(0);
+            setErrors(prev => ({ ...prev, insights: error }));
+          },
+          onError: (error) => {
+            if (error?.status !== 404 && error?.status !== 403) {
+              console.error("Project count fetch error:", error);
+            }
+          },
+        }
+      ),
+
       // Fetch recent wins
       createSafeFetch(
         () => api.get<{ wins: Array<{ signature: string; title: string; slider: number; deltaIpp: number; outcome: string | null; recordedAt: string }> }>(
@@ -356,30 +373,6 @@ export function Dashboard() {
           onError: (error) => {
             if (error?.status !== 404 && error?.status !== 403) {
               console.error("Sparkline data fetch error:", error);
-            }
-          },
-        }
-      ),
-
-      // Fetch token usage (OpenAI credits)
-      createSafeFetch(
-        () => api.get<{ used: number; remaining: number; limit: number; percentage: number }>(
-          `/api/usage/tokens`,
-          { headers, signal }
-        ),
-        {
-          signal,
-          isMounted: () => isMountedRef.current,
-          setLoading: setLoadingTokenUsage,
-          setData: (data) => {
-            setTokenUsage(data);
-          },
-          setError: (error) => {
-            setTokenUsage(null);
-          },
-          onError: (error) => {
-            if (error?.status !== 401 && error?.status !== 404) {
-              console.error("Token usage fetch error:", error);
             }
           },
         }
@@ -519,8 +512,20 @@ export function Dashboard() {
         paddingTop: "calc(2rem + 48px)" // Account for fixed StreakBar
       }}>
         <header>
-        <h2>Action Guarantee Dashboard</h2>
-        <p>Track IPP/BUT shifts and close the loop on Step-1.</p>
+          <h2>Action Guarantee Dashboard</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.25rem" }}>
+            <p style={{ margin: 0 }}>Track IPP/BUT shifts and close the loop on Step-1.</p>
+            <div style={{ marginLeft: "auto", textAlign: "right" }}>
+              <div style={{ fontSize: "0.9rem", color: "var(--text-secondary, #CCCCCC)" }}>
+                Projects: <strong style={{ color: "var(--accent-cyan, #00FFFF)" }}>{projectCount}</strong>/5
+              </div>
+              {projectCount >= 5 ? (
+                <div style={{ color: "#dc2626", fontWeight: 700, fontSize: "0.85rem" }}>Project limit reached (5)</div>
+              ) : projectCount >= 3 ? (
+                <div style={{ color: "#f59e0b", fontWeight: 600, fontSize: "0.85rem" }}>Approaching project limit (5 max)</div>
+              ) : null}
+            </div>
+          </div>
       </header>
 
       <div className="metrics">
@@ -543,108 +548,6 @@ export function Dashboard() {
           </>
         )}
       </div>
-
-      {/* Token Usage Display (OpenAI Credits) */}
-      {tokenUsage && (
-        <section style={{
-          marginTop: "2rem",
-          padding: "1.5rem",
-          border: `2px solid ${tokenUsage.percentage >= 100 ? "#dc2626" : tokenUsage.percentage >= 80 ? "#f59e0b" : "var(--accent-cyan, #00FFFF)"}`,
-          background: tokenUsage.percentage >= 100 ? "rgba(220, 38, 38, 0.05)" : tokenUsage.percentage >= 80 ? "rgba(245, 158, 11, 0.05)" : "rgba(0, 255, 255, 0.03)",
-          borderRadius: "8px"
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h3 style={{
-              margin: 0,
-              color: tokenUsage.percentage >= 100 ? "#dc2626" : tokenUsage.percentage >= 80 ? "#f59e0b" : "var(--accent-cyan, #00FFFF)",
-              fontFamily: "var(--font-mono, 'Geist Mono', 'SF Mono', 'Monaco', monospace)",
-              fontSize: "1.1rem"
-            }}>
-              OpenAI Credits (Today)
-            </h3>
-            <span style={{
-              fontFamily: "var(--font-mono, 'Geist Mono', 'SF Mono', 'Monaco', monospace)",
-              fontSize: "0.875rem",
-              color: tokenUsage.percentage >= 100 ? "#dc2626" : tokenUsage.percentage >= 80 ? "#f59e0b" : "var(--text-secondary, #AAAAAA)",
-              fontWeight: 600
-            }}>
-              {tokenUsage.percentage}%
-            </span>
-          </div>
-          
-          <div style={{
-            width: "100%",
-            height: "12px",
-            background: "var(--muted, #1a1a1a)",
-            borderRadius: "6px",
-            overflow: "hidden",
-            marginBottom: "1rem",
-            border: "1px solid rgba(255, 255, 255, 0.1)"
-          }}>
-            <div style={{
-              height: "100%",
-              width: `${Math.min(tokenUsage.percentage, 100)}%`,
-              background: tokenUsage.percentage >= 100 
-                ? "linear-gradient(90deg, #dc2626, #b91c1c)" 
-                : tokenUsage.percentage >= 80 
-                ? "linear-gradient(90deg, #f59e0b, #d97706)"
-                : "linear-gradient(90deg, var(--accent-cyan, #00FFFF), var(--accent-magenta, #FF00FF))",
-              transition: "width 0.3s ease",
-              boxShadow: tokenUsage.percentage >= 80 ? "0 0 10px rgba(245, 158, 11, 0.5)" : "0 0 8px rgba(0, 255, 255, 0.3)"
-            }} />
-          </div>
-
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontFamily: "var(--font-mono, 'Geist Mono', 'SF Mono', 'Monaco', monospace)",
-            fontSize: "0.875rem"
-          }}>
-            <span style={{ color: "var(--text-secondary, #AAAAAA)" }}>
-              Used: <strong style={{ color: "var(--text-primary, #FFFFFF)" }}>{tokenUsage.used.toLocaleString()}</strong>
-            </span>
-            <span style={{ color: "var(--text-secondary, #AAAAAA)" }}>
-              Remaining: <strong style={{ color: tokenUsage.percentage >= 100 ? "#dc2626" : "var(--text-primary, #FFFFFF)" }}>
-                {tokenUsage.remaining.toLocaleString()}
-              </strong>
-            </span>
-            <span style={{ color: "var(--text-secondary, #AAAAAA)" }}>
-              Limit: <strong style={{ color: "var(--text-primary, #FFFFFF)" }}>{tokenUsage.limit.toLocaleString()}</strong>
-            </span>
-          </div>
-
-          {tokenUsage.percentage >= 100 && (
-            <div style={{
-              marginTop: "1rem",
-              padding: "0.75rem",
-              background: "rgba(220, 38, 38, 0.1)",
-              border: "1px solid #dc2626",
-              borderRadius: "4px",
-              color: "#dc2626",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              textAlign: "center"
-            }}>
-              ⚠️ Daily limit reached. New requests will be blocked until tomorrow.
-            </div>
-          )}
-          {tokenUsage.percentage >= 80 && tokenUsage.percentage < 100 && (
-            <div style={{
-              marginTop: "1rem",
-              padding: "0.75rem",
-              background: "rgba(245, 158, 11, 0.1)",
-              border: "1px solid #f59e0b",
-              borderRadius: "4px",
-              color: "#f59e0b",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              textAlign: "center"
-            }}>
-              ⚡ Approaching daily limit ({tokenUsage.remaining.toLocaleString()} tokens remaining)
-            </div>
-          )}
-        </section>
-      )}
 
       {loadingActiveStep ? (
         <section className="step">
