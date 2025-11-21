@@ -258,7 +258,7 @@ export default function MetricsPage() {
                 </div>
                 <div className="p-3 bg-primary/5 rounded border border-primary/20">
                   <div className="font-medium mb-1">After</div>
-                  <div className="text-muted-foreground">20m/day</div>
+                  <div className="text-foreground font-semibold">20m/day</div>
                 </div>
                 <div className="text-center py-2">
                   <div className="text-2xl font-bold text-primary">↑ 5x</div>
@@ -282,7 +282,7 @@ export default function MetricsPage() {
                 </div>
                 <div className="p-3 bg-purple-600/5 rounded border border-purple-600/20">
                   <div className="font-medium mb-1">After</div>
-                  <div className="text-muted-foreground">12 leads/week</div>
+                  <div className="text-foreground font-semibold">12 leads/week</div>
                 </div>
                 <div className="text-center py-2">
                   <div className="text-2xl font-bold text-purple-600">↑ ∞</div>
@@ -306,7 +306,7 @@ export default function MetricsPage() {
                 </div>
                 <div className="p-3 bg-green-600/5 rounded border border-green-600/20">
                   <div className="font-medium mb-1">After</div>
-                  <div className="text-muted-foreground">$50K MRR</div>
+                  <div className="text-foreground font-semibold">$50K MRR</div>
                 </div>
                 <div className="text-center py-2">
                   <div className="text-2xl font-bold text-green-600">↑ $50K</div>

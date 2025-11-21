@@ -78,7 +78,7 @@ export function Nav() {
                 aria-label="Get Action"
                 asChild
               >
-                <a href={appUrl}>Get Action</a>
+                <a href="/app/analyze">Get Action</a>
               </Button>
             </>
           )}

@@ -29,7 +29,7 @@ export function Hero() {
               aria-label="Get Action - navigate to app"
               className="transition-smooth hover:scale-105"
             >
-              <a href={appUrl}>Get Action</a>
+              <a href="/app/analyze">Get Action</a>
             </Button>
             <Button
               size="lg"
