@@ -91,7 +91,7 @@ router.get("/profile", onboardingRateLimiter, async (req, res) => {
       return res.status(500).json({ 
         error: "Database schema not initialized. Please run supabase/schema.sql in your Supabase SQL Editor.",
         code: "DATABASE_SCHEMA_MISSING",
-        hint: "See README.md for database setup instructions"
+        hint: "See docs/README.md for database setup instructions"
       });
     }
     
@@ -157,7 +157,7 @@ router.post("/profile", onboardingRateLimiter, async (req, res) => {
         return res.status(500).json({ 
           error: "Database schema not initialized. Please run supabase/schema.sql in your Supabase SQL Editor.",
           code: "DATABASE_SCHEMA_MISSING",
-          hint: "See README.md for database setup instructions"
+          hint: "See docs/README.md for database setup instructions"
         });
       }
       

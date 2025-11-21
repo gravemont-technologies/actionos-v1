@@ -193,7 +193,7 @@ FIX:
 
 4. After making changes, wait 10-30 seconds and restart the server
 
-For more help, see README.md troubleshooting section.`;
+For more help, see docs/README.md troubleshooting section.`;
     }
     
     if (errorMessage.includes("Invalid API key") || errorMessage.includes("Incorrect API key")) {
@@ -212,7 +212,7 @@ FIX:
 
 ${errorMessage}
 
-Check your API key configuration and permissions. See README.md for troubleshooting.`;
+Check your API key configuration and permissions. See docs/README.md for troubleshooting.`;
   }
   
   // Handle 429 rate limit errors

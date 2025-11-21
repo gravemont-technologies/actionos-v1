@@ -64,7 +64,7 @@ export async function validateOwnership(
       if (errorCode === "PGRST205" || errorMessage.includes("table") || errorMessage.includes("schema cache")) {
         requestLogger.error("Database schema not initialized");
         return next(new AuthorizationError(
-          "Database schema not initialized. Please run supabase/schema.sql in your Supabase SQL Editor. See README.md for setup instructions."
+          "Database schema not initialized. Please run supabase/schema.sql in your Supabase SQL Editor. See docs/README.md for setup instructions."
         ));
       }
       
