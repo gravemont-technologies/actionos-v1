@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import { LLMResponse } from "../../shared/types.js";
 
 /**
- * Generate PDF report from LLM response with OptiRise branding
+ * Generate PDF report from LLM response with ActionOS branding
  */
 export async function generatePDFReport(response: LLMResponse, situation?: string, goal?: string, promptVersion?: string): Promise<void> {
   const doc = new jsPDF();
@@ -246,7 +246,7 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text(
-      `OptiRise. Elevating Your Time. Your Potential. | Page ${i} of ${totalPages}`,
+      `ActionOS. Elevating Your Time. Your Potential. | Page ${i} of ${totalPages}`,
       pageWidth / 2,
       pageHeight - 10,
       { align: "center" }
@@ -254,7 +254,7 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   }
 
   // Download PDF
-  const fileName = `OptiRise_Analysis_${new Date().toISOString().split("T")[0]}.pdf`;
+  const fileName = `ActionOS_Analysis_${new Date().toISOString().split("T")[0]}.pdf`;
   doc.save(fileName);
 }
 

@@ -18,7 +18,7 @@ describe("Prompt Builder", () => {
       const result = buildPrompt(context);
 
       expect(result.version).toBe(PROMPT_VERSION);
-      expect(result.system).toContain("OptiRise");
+      expect(result.system).toContain("ActionOS");
       expect(result.system).toContain("Strategic OS assistant");
       expect(result.user).toContain(context.profileSummary);
       expect(result.user).toContain(context.situation);
@@ -148,7 +148,7 @@ describe("Prompt Builder", () => {
       const result = buildFollowUpPrompt(context);
 
       expect(result.version).toBe(PROMPT_VERSION);
-      expect(result.system).toContain("OptiRise");
+      expect(result.system).toContain("ActionOS");
       expect(result.user).toContain(context.focusArea);
       expect(result.user).toContain(context.originalAnalysis);
     });

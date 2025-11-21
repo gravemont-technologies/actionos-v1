@@ -1,4 +1,4 @@
-# Testing Strategy — OptiRise Elevate
+# Testing Strategy — ActionOS
 
 ## Overview
 
