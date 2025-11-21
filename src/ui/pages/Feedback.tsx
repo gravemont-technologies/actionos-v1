@@ -16,12 +16,18 @@ export default function Feedback() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setSuccess(null);
     try {
-      await api.post("/api/feedback-comments", {
-        profile_id: profileId || undefined,
+      // Only include profile_id if it exists and is valid (not empty string)
+      const payload: any = {
         category,
         message,
-      });
+      };
+      if (profileId && profileId.trim()) {
+        payload.profile_id = profileId;
+      }
+      
+      await api.post("/api/feedback-comments", payload);
       setSuccess("Thanks — feedback recorded.");
       setMessage("");
     } catch (err: any) {
