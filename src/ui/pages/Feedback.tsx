@@ -18,16 +18,11 @@ export default function Feedback() {
     setError(null);
     setSuccess(null);
     try {
-      // Only include profile_id if it exists and is valid (not empty string)
-      const payload: any = {
+      // Send minimal payload - backend handles NULL values
+      await api.post("/api/feedback-comments", {
         category,
         message,
-      };
-      if (profileId && profileId.trim()) {
-        payload.profile_id = profileId;
-      }
-      
-      await api.post("/api/feedback-comments", payload);
+      });
       setSuccess("Thanks — feedback recorded.");
       setMessage("");
     } catch (err: any) {
