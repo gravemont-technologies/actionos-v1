@@ -13,6 +13,7 @@ import { llmProvider } from "../llm/client.js";
 import { longTimeoutMiddleware } from "../middleware/timeout.js";
 import { retrospectiveInsightsSchema } from "../llm/schema.js";
 import { getSupabaseClient } from "../db/supabase.js";
+import { getProfileStore, getSignatureCache } from "../store/singletons.js";
 
 const router = Router();
 
@@ -39,13 +40,8 @@ router.post("/", validateOwnership, async (req, res, next) => {
     return next(new ValidationError(parsed.error.message));
   }
 
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-
-  if (!profileStore || !cache) {
-    requestLogger.error("Server not initialized");
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
+  const cache: SignatureCache = getSignatureCache();
 
   const result = await profileStore.markStepComplete(
     parsed.data.profile_id,
@@ -78,20 +74,14 @@ router.post("/", validateOwnership, async (req, res, next) => {
 });
 
 router.get("/recent", validateOwnership, async (req, res, next) => {
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  if (!profileStore) {
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
   const profileId = req.query.profile_id as string;
   const feedback = await profileStore.listFeedback(profileId);
   return res.json({ feedback });
 });
 
 router.get("/baseline", validateOwnership, async (req, res, next) => {
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  if (!profileStore) {
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
   const profileId = req.query.profile_id as string;
   const baseline = await profileStore.getBaseline(profileId);
   return res.json({ baseline });
@@ -112,10 +102,7 @@ router.get("/timer", validateOwnership, async (req, res, next) => {
     return next(new ValidationError("profile_id and signature required"));
   }
 
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  if (!profileStore) {
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
 
   try {
     const supabase = getSupabaseClient();
@@ -172,10 +159,7 @@ router.get("/active-step", validateOwnership, async (req, res, next) => {
     return next(new ValidationError("profile_id required"));
   }
 
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  if (!profileStore) {
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
 
   try {
     const activeStep = await profileStore.getActiveStep(profileId);
@@ -453,7 +437,7 @@ router.get("/recent-wins", validateOwnership, async (req, res, next) => {
 
     // Get signatures for batch fetch
     const signatures = data.map(r => r.signature);
-    const cache: SignatureCache | undefined = req.app.locals.signatureCache;
+    const cache: SignatureCache = getSignatureCache();
     const userId = req.userId;
 
     // Fetch titles using getBatchInsights (no N+1 queries)
@@ -577,7 +561,7 @@ router.get("/sparkline-data", validateOwnership, async (req, res, next) => {
 
     // Get signatures for batch fetch
     const signatures = data.map(r => r.signature);
-    const cache: SignatureCache | undefined = req.app.locals.signatureCache;
+    const cache: SignatureCache = getSignatureCache();
     const userId = req.userId;
 
     // Fetch delta_bucket from insights using getBatchInsights (no N+1 queries)
@@ -652,11 +636,8 @@ router.post("/retrospective", validateOwnership, longTimeoutMiddleware, async (r
     return next(new ValidationError(parsed.error.message));
   }
 
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  if (!profileStore || !cache) {
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
+  const cache: SignatureCache = getSignatureCache();
 
   try {
     const profile = await profileStore.getProfile(parsed.data.profile_id);

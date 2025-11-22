@@ -70,9 +70,11 @@ app.use((req, res, next) => {
 // 5. General rate limiting (applied to all routes)
 app.use(generalRateLimiter);
 
-// Initialize app locals
-app.locals.signatureCache = new SignatureCache();
-app.locals.profileStore = new ProfileStore();
+// Initialize singletons via getters (serverless-friendly)
+// For the Express server we still instantiate singletons to preserve previous behavior
+import { getProfileStore, getSignatureCache } from "./store/singletons.js";
+getSignatureCache();
+getProfileStore();
 
 // 6. Routes (with specific middleware applied in route files)
 app.use("/api/auth", authRouter);

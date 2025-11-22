@@ -7,11 +7,9 @@
 
 interface EnvironmentConfig {
   VITE_CLERK_PUBLISHABLE_KEY: string;
-  // VITE_API_URL is optional in production when frontend and API share the same origin.
-  VITE_API_URL?: string;
+  VITE_API_URL: string;
 }
 
-// Only require Clerk publishable key. VITE_API_URL may be empty for same-origin deployments.
 const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 
@@ -23,5 +21,5 @@ if (!clerkKey) {
 
 export const env: EnvironmentConfig = {
   VITE_CLERK_PUBLISHABLE_KEY: clerkKey,
-  VITE_API_URL: apiUrl ?? "",
+  VITE_API_URL: apiUrl || "http://localhost:3001",
 };

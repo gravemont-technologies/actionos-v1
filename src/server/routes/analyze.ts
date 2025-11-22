@@ -13,6 +13,7 @@ import { buildPrompt, buildRetrospectivePrompt, buildFollowUpPrompt, buildMicroN
 import { analyzeFeedbackPatterns } from "../utils/feedbackAnalyzer.js";
 import { responseSchema } from "../llm/schema.js";
 import { ProfileStore } from "../store/profileStore.js";
+import { getProfileStore, getSignatureCache } from "../store/singletons.js";
 import { computeServerSignature, verifySignature } from "../utils/signature.js";
 import { clerkAuthMiddleware } from "../middleware/clerkAuth.js";
 import { validateOwnership } from "../middleware/validateOwnership.js";
@@ -93,8 +94,8 @@ router.post("/", validateOwnership, async (req, res, next) => {
     signature: computeServerSignature(payload),
   };
 
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
+  const cache: SignatureCache = getSignatureCache();
+  const profileStore: ProfileStore = getProfileStore();
   const baseline = profileStore ? await profileStore.getBaseline(payload.profileId) : undefined;
 
   const cacheHit = cache ? await cache.get(normalized.signature) : null;
@@ -315,10 +316,7 @@ router.post("/follow-up", validateOwnership, longTimeoutMiddleware, async (req, 
     return next(new ValidationError(parsed.error.message));
   }
 
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  if (!profileStore) {
-    return next(new Error("Server not initialized"));
-  }
+    const profileStore: ProfileStore = getProfileStore();
 
   try {
     const profile = await profileStore.getProfile(parsed.data.profile_id);
@@ -486,10 +484,7 @@ router.post("/micro-nudge", validateOwnership, async (req, res, next) => {
     return next(new ValidationError(parsed.error.message));
   }
 
-  const profileStore: ProfileStore | undefined = req.app.locals.profileStore;
-  if (!profileStore) {
-    return next(new Error("Server not initialized"));
-  }
+  const profileStore: ProfileStore = getProfileStore();
 
   try {
     const profile = await profileStore.getProfile(parsed.data.profile_id);

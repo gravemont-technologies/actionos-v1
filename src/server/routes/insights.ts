@@ -3,6 +3,7 @@ import { z } from "zod";
 import { clerkAuthMiddleware } from "../middleware/clerkAuth.js";
 import { SignatureCache } from "../cache/signatureCache.js";
 import { getSupabaseClient } from "../db/supabase.js";
+import { getSignatureCache } from "../store/singletons.js";
 import { ValidationError, AuthenticationError } from "../middleware/errorHandler.js";
 import { logger } from "../utils/logger.js";
 import { insightsRateLimiter } from "../middleware/rateLimiter.js";
@@ -37,10 +38,7 @@ router.post("/save", insightsRateLimiter, requireUserId, async (req, res, next) 
     return next(new ValidationError(parsed.error.message));
   }
 
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  if (!cache) {
-    return next(new Error("Server not initialized"));
-  }
+  const cache: SignatureCache = getSignatureCache();
 
   try {
     // Check if signature exists (even if expired)
@@ -111,10 +109,7 @@ router.get("/", insightsRateLimiter, requireUserId, async (req, res, next) => {
     userId: req.userId,
   });
 
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  if (!cache) {
-    return next(new Error("Server not initialized"));
-  }
+  const cache: SignatureCache = getSignatureCache();
 
   try {
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
@@ -174,10 +169,7 @@ router.get("/count", insightsRateLimiter, requireUserId, async (req, res, next) 
 
 // Get single insight
 router.get("/:signature", insightsRateLimiter, requireUserId, async (req, res, next) => {
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  if (!cache) {
-    return next(new Error("Server not initialized"));
-  }
+  const cache: SignatureCache = getSignatureCache();
 
   try {
     const insight = await cache.getInsight(req.params.signature, req.userId!); // Guaranteed non-null by requireUserId
@@ -205,10 +197,7 @@ router.patch("/:signature", insightsRateLimiter, requireUserId, async (req, res,
     return next(new ValidationError(parsed.error.message));
   }
 
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  if (!cache) {
-    return next(new Error("Server not initialized"));
-  }
+  const cache: SignatureCache = getSignatureCache();
 
   try {
     await cache.updateInsight(
@@ -224,10 +213,7 @@ router.patch("/:signature", insightsRateLimiter, requireUserId, async (req, res,
 
 // Unsave insight
 router.delete("/:signature", insightsRateLimiter, requireUserId, async (req, res, next) => {
-  const cache: SignatureCache | undefined = req.app.locals.signatureCache;
-  if (!cache) {
-    return next(new Error("Server not initialized"));
-  }
+  const cache: SignatureCache = getSignatureCache();
 
   try {
     await cache.unsaveInsight(req.params.signature, req.userId!); // Guaranteed non-null by requireUserId
