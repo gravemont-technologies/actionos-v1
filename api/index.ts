@@ -14,8 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (!appInstance) {
       // Import from source - Vercel will handle TypeScript compilation
-      const { app } = await import('../src/server/index.js');
-      appInstance = app;
+      appInstance = (await import('../src/server/index.js')).default;
     }
     
     // Express app handles the request
