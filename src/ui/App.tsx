@@ -10,7 +10,6 @@ import { ProfileProvider } from "./contexts/ProfileContext.js";
 import Landing from "./pages/Landing";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import { OnboardingQuiz } from "./OnboardingQuiz";
 import { AppLayout, AnalyzeView, DashboardView } from "./AppLayout";
 import Feedback from "./pages/Feedback";
 import { InsightsView } from "./pages/InsightsView";
@@ -65,21 +64,7 @@ function AppRoutes() {
           <Route path="/sign-up/*" element={<SignUp />} />
           <Route path="/metrics" element={<MetricsPage />} />
 
-          {/* Protected routes */}
-          {/* DISABLED: Onboarding temporarily disabled
-          <Route
-            path="/onboarding"
-            element={
-              <ProtectedRoute>
-                <OnboardingQuiz onComplete={() => {
-                  // Navigation handled inside OnboardingQuiz
-                }} />
-              </ProtectedRoute>
-            }
-          />
-          */}
-
-          {/* Main app routes */}
+          {/* Protected app routes */}
           <Route
             path="/app"
             element={
