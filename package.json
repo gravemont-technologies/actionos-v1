@@ -104,6 +104,7 @@
     "typescript": "^5.9.3",
     "vaul": "^1.1.2",
     "web-vitals": "^4.2.4",
+    "yargs": "^18.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -115,7 +116,7 @@
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
     "@types/supertest": "^6.0.3",
-    "@vercel/node": "^5.5.9",
+    "@vercel/node": "^4.0.0",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
