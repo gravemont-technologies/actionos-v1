@@ -110,13 +110,13 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
+    "@tailwindcss/typography": "^0.5.19",
     "vaul": "^1.1.2",
     "web-vitals": "^4.2.4",
     "yargs": "^18.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@types/react": "^19.2.4",
