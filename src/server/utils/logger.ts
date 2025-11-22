@@ -13,16 +13,17 @@ import { env, isDevelopment } from "../config/env.js";
 // Create base logger
 const baseLogger = pino({
   level: process.env.LOG_LEVEL || (isDevelopment() ? "debug" : "info"),
-  transport: isDevelopment()
-    ? {
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "HH:MM:ss Z",
-          ignore: "pid,hostname",
-        },
-      }
-    : undefined,
+  // Only use pino-pretty in development (not serverless-compatible)
+  ...(isDevelopment() && {
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname",
+      },
+    },
+  }),
   base: {
     env: env.NODE_ENV,
   },
