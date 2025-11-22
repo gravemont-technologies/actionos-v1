@@ -4,7 +4,7 @@ import { AnalyzeForm } from "./AnalyzeForm";
 import { Dashboard } from "./Dashboard";
 import { useProfileId, useProfileContext } from "./contexts/ProfileContext.js";
 import { useEscapeKey } from "./hooks/useEscapeKey.js";
-import { useAuthHeaders, useUserId } from "./auth.js";
+import { useAuthState, useUserId } from "./auth.js";
 import { api } from "./utils/api.js";
 
 /**
@@ -18,7 +18,7 @@ export function AppLayout() {
   const profileId = useProfileId();
   const { isLoading } = useProfileContext();
   const userId = useUserId();
-  const authHeaders = useAuthHeaders();
+  const { headers: authHeaders, isReady: isAuthReady } = useAuthState();
   const [pulseNav, setPulseNav] = useState<string | null>(null);
   const [abandonedSteps, setAbandonedSteps] = useState<string[]>([]);
 

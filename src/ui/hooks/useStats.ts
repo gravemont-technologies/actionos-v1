@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../utils/api.js";
 import { useProfileId } from "../contexts/ProfileContext.js";
-import { useAuthHeaders } from "../auth.js";
+import { useAuthState } from "../auth.js";
 
 type Stats = {
   completed: number;
@@ -15,7 +15,7 @@ export function useStats(): {
   error: string | null;
 } {
   const profileId = useProfileId();
-  const authHeaders = useAuthHeaders();
+  const { headers: authHeaders } = useAuthState();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

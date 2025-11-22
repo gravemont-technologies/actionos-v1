@@ -5,8 +5,9 @@
  * Optimized for zero race conditions and maximum performance
  */
 
-import { useUser, useAuth } from "@clerk/clerk-react";
-import { useState, useEffect, useMemo } from "react";
+import { useUser, useAuth as useClerkAuth } from "@clerk/clerk-react";
+import { useState, useEffect } from "react";
+import { flushSync } from "react-dom";
 
 /**
  * Hook to get current Clerk user ID
@@ -94,16 +95,18 @@ export function clearCachedToken(userId?: string): void {
  * Eliminates double token fetch, reduces mount delay from 400ms to 200ms
  * Uses user-scoped sessionStorage cache for instant readiness on subsequent mounts
  */
-export function useAuth(): { headers: Record<string, string>; isReady: boolean } {
+export function useAuthState(): { headers: Record<string, string>; isReady: boolean } {
   const userId = useUserId();
-  const { getToken } = useAuth as () => { getToken: () => Promise<string | null> };
+  const { getToken } = useClerkAuth();
   const [headers, setHeaders] = useState<Record<string, string>>({});
   const [isReady, setIsReady] = useState(false);
   
   useEffect(() => {
     if (!userId) {
-      setHeaders({});
-      setIsReady(true);
+      flushSync(() => {
+        setHeaders({});
+        setIsReady(true);
+      });
       return;
     }
 
@@ -115,11 +118,13 @@ export function useAuth(): { headers: Record<string, string>; isReady: boolean }
         const cachedToken = getCachedToken(userId);
         if (cachedToken) {
           if (!cancelled) {
-            setHeaders({
-              "x-clerk-user-id": userId,
-              "Authorization": `Bearer ${cachedToken}`,
+            flushSync(() => {
+              setHeaders({
+                "x-clerk-user-id": userId,
+                "Authorization": `Bearer ${cachedToken}`,
+              });
+              setIsReady(true);
             });
-            setIsReady(true);
           }
           return;
         }
@@ -129,20 +134,27 @@ export function useAuth(): { headers: Record<string, string>; isReady: boolean }
         if (!cancelled) {
           if (token) {
             setCachedToken(userId, token); // Cache with user scope
-            setHeaders({
-              "x-clerk-user-id": userId,
-              "Authorization": `Bearer ${token}`,
+            flushSync(() => {
+              setHeaders({
+                "x-clerk-user-id": userId,
+                "Authorization": `Bearer ${token}`,
+              });
+              setIsReady(true);
             });
           } else {
-            setHeaders({ "x-clerk-user-id": userId });
+            flushSync(() => {
+              setHeaders({ "x-clerk-user-id": userId });
+              setIsReady(true);
+            });
           }
-          setIsReady(true);
         }
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to get Clerk token:", error);
-          setHeaders({ "x-clerk-user-id": userId });
-          setIsReady(true);
+          flushSync(() => {
+            setHeaders({ "x-clerk-user-id": userId });
+            setIsReady(true);
+          });
         }
       }
     };
@@ -159,19 +171,19 @@ export function useAuth(): { headers: Record<string, string>; isReady: boolean }
 
 /**
  * Legacy hook for backwards compatibility
- * @deprecated Use useAuth() instead to avoid double token fetch
+ * @deprecated Use useAuthState() instead to avoid double token fetch
  */
 export function useAuthHeaders(): Record<string, string> {
-  const { headers } = useAuth();
+  const { headers } = useAuthState();
   return headers;
 }
 
 /**
  * Legacy hook for backwards compatibility
- * @deprecated Use useAuth() instead to avoid double token fetch
+ * @deprecated Use useAuthState() instead to avoid double token fetch
  */
 export function useAuthReady(): boolean {
-  const { isReady } = useAuth();
+  const { isReady } = useAuthState();
   return isReady;
 }
 

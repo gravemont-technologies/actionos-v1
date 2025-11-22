@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../utils/api.js";
 import { useProfileId } from "../contexts/ProfileContext.js";
-import { useAuthHeaders } from "../auth.js";
+import { useAuthState } from "../auth.js";
 
 type DeltaData = {
   slider: number;
@@ -10,7 +10,7 @@ type DeltaData = {
 
 export function useInsightDeltas(signatures: string[]): Record<string, DeltaData> {
   const profileId = useProfileId();
-  const authHeaders = useAuthHeaders();
+  const { headers: authHeaders } = useAuthState();
   const [deltas, setDeltas] = useState<Record<string, DeltaData>>({});
   const abortControllerRef = useRef<AbortController | null>(null);
   const isMountedRef = useRef(true);

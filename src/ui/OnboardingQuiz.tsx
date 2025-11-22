@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuthHeaders, useUserId } from "./auth";
+import { useAuthState, useUserId } from "./auth";
 import { useNavigate } from "react-router-dom";
 import { api } from "./utils/api.js";
 import { useProfileContext } from "./contexts/ProfileContext.js";
@@ -22,7 +22,7 @@ const STORAGE_KEY = "action_os_profile_id";
 
 export function OnboardingQuiz({ onComplete }: OnboardingQuizProps) {
   const userId = useUserId();
-  const authHeaders = useAuthHeaders();
+  const { headers: authHeaders } = useAuthState();
   const navigate = useNavigate();
   const { setProfileId } = useProfileContext();
   const [questions, setQuestions] = useState<Question[]>([]);

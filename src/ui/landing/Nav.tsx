@@ -1,9 +1,9 @@
 import { Button } from "@/ui/components/ui/button";
-import { SignedIn, SignedOut, UserButton, useClerk } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton, useClerk, useAuth } from "@clerk/clerk-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ActionModal } from "./ActionModal";
 import { clearCachedToken } from "../auth";
 
@@ -19,11 +19,29 @@ export function Nav() {
   const { theme, setTheme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { signOut } = useClerk();
+  const { userId } = useAuth();
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
   
   // Check if Clerk is configured
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-  // Handle sign-out with cache clearing
+  // Detect sign-out (including UserButton sign-out) and clear cache
+  useEffect(() => {
+    if (prevUserIdRef.current === undefined) {
+      // First render - just store current userId
+      prevUserIdRef.current = userId;
+      return;
+    }
+    
+    // User signed out (was signed in, now not)
+    if (prevUserIdRef.current && !userId) {
+      clearCachedToken(); // Clear all user tokens
+    }
+    
+    prevUserIdRef.current = userId;
+  }, [userId]);
+
+  // Handle programmatic sign-out with cache clearing
   const handleSignOut = async () => {
     clearCachedToken(); // Clear all user tokens
     await signOut();
