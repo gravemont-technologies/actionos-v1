@@ -339,7 +339,7 @@ export class SignatureCache {
           }
           
           // Verify rows affected
-          if (result.data && Array.isArray(result.data) && result.data.length === 0) {
+          if (result.data && Array.isArray(result.data) && (result.data as any[]).length === 0) {
             throw new Error("Update failed: ownership conflict or entry not found");
           }
           

@@ -7,7 +7,7 @@
  */
 
 import { Request, Response, NextFunction } from "express";
-import { createClerkClient } from "@clerk/backend";
+import { verifyToken } from "@clerk/backend";
 import { env } from "../config/env.js";
 import { AuthenticationError } from "./errorHandler.js";
 import { logger } from "../utils/logger.js";
@@ -84,13 +84,12 @@ export async function clerkAuthMiddleware(
 
     // Verify token using Clerk backend SDK
     try {
-      const client = createClerkClient({
+      const payload = await verifyToken(token, {
         secretKey: env.CLERK_SECRET_KEY!,
       });
-      const session = await client.verifyToken(token);
 
       // Extract user ID from verified session
-      req.userId = session.sub; // Clerk uses 'sub' for user ID
+      req.userId = payload.sub; // Clerk uses 'sub' for user ID
       next();
     } catch (error) {
       const requestLogger = logger.child({

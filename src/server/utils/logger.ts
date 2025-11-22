@@ -34,7 +34,7 @@ const baseLogger = pino({
 export const logger = {
   error: (obj: object | string, msg?: string, ...args: unknown[]) => {
     if (typeof obj === "string") {
-      baseLogger.error({ msg: obj }, ...args);
+      baseLogger.error({ msg: obj }, msg, ...args);
     } else {
       baseLogger.error(obj, msg, ...args);
     }
@@ -42,7 +42,7 @@ export const logger = {
 
   warn: (obj: object | string, msg?: string, ...args: unknown[]) => {
     if (typeof obj === "string") {
-      baseLogger.warn({ msg: obj }, ...args);
+      baseLogger.warn({ msg: obj }, msg, ...args);
     } else {
       baseLogger.warn(obj, msg, ...args);
     }
@@ -50,7 +50,7 @@ export const logger = {
 
   info: (obj: object | string, msg?: string, ...args: unknown[]) => {
     if (typeof obj === "string") {
-      baseLogger.info({ msg: obj }, ...args);
+      baseLogger.info({ msg: obj }, msg, ...args);
     } else {
       baseLogger.info(obj, msg, ...args);
     }
@@ -58,7 +58,7 @@ export const logger = {
 
   debug: (obj: object | string, msg?: string, ...args: unknown[]) => {
     if (typeof obj === "string") {
-      baseLogger.debug({ msg: obj }, ...args);
+      baseLogger.debug({ msg: obj }, msg, ...args);
     } else {
       baseLogger.debug(obj, msg, ...args);
     }

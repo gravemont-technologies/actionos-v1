@@ -1,5 +1,10 @@
-import { getSupabaseClient, StepMetricsInsert, UserDailyMetricsInsert, StepMetricsRow } from "../db/supabase.js";
+import { getSupabaseClient } from "../db/supabase.js";
+import type { Database } from "../../types/database.types";
 import { logger } from "./logger.js";
+
+type StepMetricsInsert = Database['public']['Tables']['step_metrics']['Insert'];
+type UserDailyMetricsInsert = Database['public']['Tables']['user_daily_metrics']['Insert'];
+type StepMetricsRow = Database['public']['Tables']['step_metrics']['Row'];
 
 /**
  * Core metrics calculation utilities
@@ -126,7 +131,7 @@ export async function recordStepMetrics(input: StepMetricsInput): Promise<void> 
   );
   const taaScore = calculateTAA(input.estimatedMinutes, input.actualMinutes);
   
-  const metricsRow: StepMetricsInsert = {
+  const metricsRow: any = {
     step_id: input.stepId,
     profile_id: input.profileId,
     signature: input.signature,
@@ -183,7 +188,7 @@ async function updateDailyMetrics(profileId: string): Promise<void> {
     .eq("profile_id", profileId)
     .order("completed_at", { ascending: false });
   
-  const allMetrics = (data || []) as StepMetricsRow[];
+  const allMetrics = (data || []) as any[];
   
   if (fetchError) {
     logger.error({ error: fetchError, profileId }, "Failed to fetch metrics for aggregation");
@@ -193,9 +198,9 @@ async function updateDailyMetrics(profileId: string): Promise<void> {
   if (allMetrics.length === 0) return;
   
   // Calculate IPP sums by time period
-  const todayMetrics = allMetrics.filter(m => m.completed_at.startsWith(today));
-  const last7Days = allMetrics.filter(m => new Date(m.completed_at) >= sevenDaysAgo);
-  const last30Days = allMetrics.filter(m => new Date(m.completed_at) >= thirtyDaysAgo);
+  const todayMetrics = allMetrics.filter(m => m.completed_at && m.completed_at.startsWith(today));
+  const last7Days = allMetrics.filter(m => m.completed_at && new Date(m.completed_at) >= sevenDaysAgo);
+  const last30Days = allMetrics.filter(m => m.completed_at && new Date(m.completed_at) >= thirtyDaysAgo);
   
   const dailyIpp = todayMetrics.reduce((sum, m) => {
     const ipp = calculateIPP(m.magnitude || 0, m.reach || 0, m.depth || 1);
@@ -291,7 +296,7 @@ async function updateDailyMetrics(profileId: string): Promise<void> {
   const insightsConverted = 0;
   
   // Upsert daily metrics
-  const dailyMetricsRow: UserDailyMetricsInsert = {
+  const dailyMetricsRow: any = {
     profile_id: profileId,
     date: today,
     daily_ipp: Number(dailyIpp.toFixed(2)),

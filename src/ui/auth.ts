@@ -26,7 +26,7 @@ export function useAuthHeaders(): Record<string, string> {
   const userId = useUserId();
   // Memoize to ensure stable reference when userId hasn't changed
   // This prevents infinite loops in useEffect dependencies
-  return useMemo(() => {
+  return useMemo((): Record<string, string> => {
     if (!userId) return {};
     return { "x-clerk-user-id": userId };
   }, [userId]);

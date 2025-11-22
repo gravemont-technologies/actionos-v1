@@ -51,12 +51,12 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   // Summary
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.text("Summary", margin, yPos);
   yPos += 8;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, "normal");
+  doc.setFont("helvetica", "normal");
   doc.setTextColor(50, 50, 50);
   const summaryLines = doc.splitTextToSize(response.summary || "", pageWidth - 2 * margin);
   summaryLines.forEach((line: string) => {
@@ -70,16 +70,16 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   if (situation || goal) {
     checkNewPage(15);
     doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Context", margin, yPos);
     yPos += 8;
 
     doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     if (situation) {
-      doc.setFont(undefined, "bold");
+      doc.setFont("helvetica", "bold");
       doc.text("Situation:", margin, yPos);
-      doc.setFont(undefined, "normal");
+      doc.setFont("helvetica", "normal");
       const situationLines = doc.splitTextToSize(situation || "", pageWidth - 2 * margin);
       situationLines.forEach((line: string) => {
         checkNewPage(6);
@@ -89,9 +89,9 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
       yPos += 4;
     }
     if (goal) {
-      doc.setFont(undefined, "bold");
+      doc.setFont("helvetica", "bold");
       doc.text("Goal:", margin, yPos);
-      doc.setFont(undefined, "normal");
+      doc.setFont("helvetica", "normal");
       const goalLines = doc.splitTextToSize(goal || "", pageWidth - 2 * margin);
       goalLines.forEach((line: string) => {
         checkNewPage(6);
@@ -106,7 +106,7 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   // Immediate Steps
   checkNewPage(20);
   doc.setFontSize(14);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.setTextColor(0, 123, 255);
   doc.text("Immediate Actions", margin, yPos);
   yPos += 10;
@@ -114,7 +114,7 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   response.immediate_steps.forEach((step, index) => {
     checkNewPage(30);
     doc.setFontSize(11);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
     doc.text(`Step ${index + 1}:`, margin, yPos);
     yPos += 7;
@@ -122,7 +122,7 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
     // Step description (clean up CTA templates for PDF)
     const stepText = (step.step || "").split("|")[0].trim();
     doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     const stepLines = doc.splitTextToSize(stepText, pageWidth - 2 * margin);
     stepLines.forEach((line: string) => {
       checkNewPage(6);
@@ -148,13 +148,13 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   // Strategic Lens
   checkNewPage(20);
   doc.setFontSize(14);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.setTextColor(0, 0, 0);
   doc.text("Strategic Lens", margin, yPos);
   yPos += 8;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, "normal");
+  doc.setFont("helvetica", "normal");
   doc.setTextColor(50, 50, 50);
   const lensLines = doc.splitTextToSize(response.strategic_lens || "", pageWidth - 2 * margin);
   lensLines.forEach((line: string) => {
@@ -168,19 +168,19 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   if (response.top_risks.length > 0) {
     checkNewPage(25);
     doc.setFontSize(14);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Top Risks & Mitigations", margin, yPos);
     yPos += 10;
 
     response.top_risks.forEach((risk) => {
       checkNewPage(25);
       doc.setFontSize(10);
-      doc.setFont(undefined, "bold");
+      doc.setFont("helvetica", "bold");
       doc.setTextColor(200, 0, 0);
       doc.text(`Risk: ${risk.risk}`, margin, yPos);
       yPos += 7;
 
-      doc.setFont(undefined, "normal");
+      doc.setFont("helvetica", "normal");
       doc.setTextColor(50, 50, 50);
       const mitigationLines = doc.splitTextToSize(risk.mitigation || "", pageWidth - 2 * margin);
       mitigationLines.forEach((line: string) => {
@@ -195,24 +195,24 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   // KPI
   checkNewPage(15);
   doc.setFontSize(14);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.text("Key Performance Indicator", margin, yPos);
   yPos += 8;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, "normal");
+  doc.setFont("helvetica", "normal");
   doc.text(`${response.kpi?.name || "KPI"}: ${response.kpi?.target || ""} (${response.kpi?.cadence || ""})`, margin, yPos);
   yPos += 10;
 
   // Micro-nudge
   checkNewPage(15);
   doc.setFontSize(12);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.text("Micro-Nudge", margin, yPos);
   yPos += 8;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, "italic");
+  doc.setFont("helvetica", "italic");
   doc.setTextColor(100, 100, 100);
   const nudgeLines = doc.splitTextToSize(response.micro_nudge || "", pageWidth - 2 * margin);
   nudgeLines.forEach((line: string) => {
@@ -226,12 +226,12 @@ export async function generatePDFReport(response: LLMResponse, situation?: strin
   if (response.module && response.module.steps.length > 0) {
     checkNewPage(25);
     doc.setFontSize(14);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text(`Module: ${response.module.name || ""}`, margin, yPos);
     yPos += 8;
 
     doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     response.module.steps.forEach((step, index) => {
       checkNewPage(8);
       doc.text(`${index + 1}. ${step || ""}`, margin + 5, yPos);

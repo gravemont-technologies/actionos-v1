@@ -100,7 +100,9 @@ export class ProfileStore {
       if (profileCache.size >= MAX_CACHE_SIZE) {
         // Remove oldest entry (simple eviction)
         const firstKey = profileCache.keys().next().value;
-        profileCache.delete(firstKey);
+        if (firstKey) {
+          profileCache.delete(firstKey);
+        }
       }
       profileCache.set(profileId, { data: profile, timestamp: Date.now() });
 
@@ -163,7 +165,9 @@ export class ProfileStore {
       // Cache by profile_id
       if (profileCache.size >= MAX_CACHE_SIZE) {
         const firstKey = profileCache.keys().next().value;
-        profileCache.delete(firstKey);
+        if (firstKey) {
+          profileCache.delete(firstKey);
+        }
       }
       profileCache.set(profile.profileId, { data: profile, timestamp: Date.now() });
 

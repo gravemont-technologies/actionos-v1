@@ -106,10 +106,11 @@ router.post("/", validateOwnership, async (req, res, next) => {
     
     // Inject current metrics into cached response
     const currentMetrics = await getProfileMetrics(payload.profileId);
-    if (currentMetrics) {
-      guardedResponse.meta.current_ipp = currentMetrics.seven_day_ipp;
-      guardedResponse.meta.current_but = currentMetrics.seven_day_but;
-      guardedResponse.meta.rsi = currentMetrics.rsi;
+    if (currentMetrics && currentMetrics.metrics) {
+      const metrics = currentMetrics.metrics as any;
+      guardedResponse.meta.current_ipp = metrics.seven_day_ipp;
+      guardedResponse.meta.current_but = metrics.seven_day_but;
+      guardedResponse.meta.rsi = metrics.rsi;
     }
     
     trackEvent("analyze.response", {
@@ -200,10 +201,11 @@ router.post("/", validateOwnership, async (req, res, next) => {
     
     // Inject current metrics into response
     const currentMetrics = await getProfileMetrics(payload.profileId);
-    if (currentMetrics) {
-      finalPayload.meta.current_ipp = currentMetrics.seven_day_ipp;
-      finalPayload.meta.current_but = currentMetrics.seven_day_but;
-      finalPayload.meta.rsi = currentMetrics.rsi;
+    if (currentMetrics && currentMetrics.metrics) {
+      const metrics = currentMetrics.metrics as any;
+      finalPayload.meta.current_ipp = metrics.seven_day_ipp;
+      finalPayload.meta.current_but = metrics.seven_day_but;
+      finalPayload.meta.rsi = metrics.rsi;
     }
 
     // Log prompt version for tracking
@@ -400,10 +402,10 @@ router.post("/follow-up", validateOwnership, longTimeoutMiddleware, async (req, 
       
       // Validate response quality - ensure it's not just repeating original
       const hasNewContent = parsedResponse.summary !== parsed.data.original_analysis ||
-                           (parsedResponse.top_risks.length > 0 && 
+                           (parsedResponse.top_risks.length > 0 &&
                             parsed.data.original_top_risks &&
-                            parsedResponse.top_risks.some(r => 
-                              !parsed.data.original_top_risks.includes(r.risk)
+                            parsedResponse.top_risks.some(r =>
+                              parsed.data.original_top_risks!.includes(r.risk)
                             ));
       
       if (!hasNewContent && parsed.data.original_immediate_steps) {
