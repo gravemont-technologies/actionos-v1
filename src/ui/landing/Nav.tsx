@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ActionModal } from "./ActionModal";
+import { clearCachedToken } from "../auth";
 
 /**
  * Sticky navigation with logo, theme toggle, and auth CTAs
@@ -20,6 +21,11 @@ export function Nav() {
   
   // Check if Clerk is configured
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+  // Clear token cache on sign-out
+  const handleSignOut = () => {
+    clearCachedToken();
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,7 +71,7 @@ export function Nav() {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/app/analyze">App</Link>
                 </Button>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton afterSignOutUrl="/" afterSignOutAll={handleSignOut} />
               </SignedIn>
             </>
           ) : (
