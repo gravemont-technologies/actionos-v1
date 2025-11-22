@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useAuthHeaders, useUserId, useAuthReady } from "./auth.js";
+import { useAuth as useAuthState, useUserId } from "./auth.js";
 import { api } from "./utils/api.js";
 import { useProfileId } from "./contexts/ProfileContext.js";
 import { useNavigate } from "react-router-dom";
@@ -89,8 +89,7 @@ type FeedbackItem = {
 export function Dashboard() {
   const profileId = useProfileId();
   const userId = useUserId(); // Get userId (stable string reference) for dependencies
-  const authHeaders = useAuthHeaders(); // Memoized, but we use userId in deps for safety
-  const isAuthReady = useAuthReady();
+  const { headers: authHeaders, isReady: isAuthReady } = useAuthState();
   const [slider, setSlider] = useState(5);
   const [outcome, setOutcome] = useState("");
   const [recentFeedback, setRecentFeedback] = useState<FeedbackItem[]>([]);
@@ -386,7 +385,7 @@ export function Dashboard() {
         fetchingRef.current = false;
       }
     }
-  }, [profileId, userId, isAuthReady]); // CRITICAL: Include isAuthReady to re-trigger once auth is ready
+  }, [profileId, userId]); // CRITICAL: Use userId (string) instead of authHeaders (object) to prevent infinite loops
 
   useEffect(() => {
     isMountedRef.current = true;

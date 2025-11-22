@@ -9,7 +9,7 @@ import {
 } from "../shared/signature.js";
 import { AnalyzeResponse, LLMResponse } from "../shared/types.js";
 import { ResponseDisplay } from "./ResponseDisplay.js";
-import { useAuthHeaders, useAuthReady } from "./auth.js";
+import { useAuth as useAuthState } from "./auth.js";
 import { api } from "./utils/api.js";
 import { useProfileId, useProfileContext } from "./contexts/ProfileContext.js";
 import { Button } from "@/ui/components/ui/button";
@@ -53,8 +53,7 @@ const demoData: FormState = {
 export function AnalyzeForm({ onComplete }: AnalyzeFormProps) {
   const profileId = useProfileId();
   const { clearProfileId } = useProfileContext();
-  const authHeaders = useAuthHeaders();
-  const isAuthReady = useAuthReady();
+  const { headers: authHeaders, isReady: isAuthReady } = useAuthState();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});

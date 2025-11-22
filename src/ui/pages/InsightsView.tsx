@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useAuthHeaders, useUserId, useAuthReady } from "../auth.js";
+import { useAuth as useAuthState, useUserId } from "../auth.js";
 import { api } from "../utils/api.js";
 // Toast removed - using silent state updates
 import { useNavigate } from "react-router-dom";
@@ -41,8 +41,7 @@ type InsightData = {
 
 export function InsightsView() {
   const userId = useUserId(); // Get userId (stable string reference) for dependencies
-  const authHeaders = useAuthHeaders(); // Memoized, but we use userId in deps for safety
-  const isAuthReady = useAuthReady();
+  const { headers: authHeaders, isReady: isAuthReady } = useAuthState();
   const navigate = useNavigate();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,7 +181,7 @@ export function InsightsView() {
         setLoadingMore(false);
       }
     }
-  }, [userId, debouncedSearch, isAuthReady]); // CRITICAL: Include isAuthReady to re-trigger once auth is ready
+  }, [userId, debouncedSearch]); // CRITICAL: Use userId (string) instead of authHeaders (object), offset handled via ref
 
   // Debounce search input
   useEffect(() => {

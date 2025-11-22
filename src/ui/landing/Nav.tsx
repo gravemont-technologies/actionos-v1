@@ -1,5 +1,5 @@
 import { Button } from "@/ui/components/ui/button";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton, useClerk } from "@clerk/clerk-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Link } from "react-router-dom";
@@ -18,13 +18,15 @@ import { clearCachedToken } from "../auth";
 export function Nav() {
   const { theme, setTheme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { signOut } = useClerk();
   
   // Check if Clerk is configured
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-  // Clear token cache on sign-out
-  const handleSignOut = () => {
-    clearCachedToken();
+  // Handle sign-out with cache clearing
+  const handleSignOut = async () => {
+    clearCachedToken(); // Clear all user tokens
+    await signOut();
   };
 
   return (
@@ -71,7 +73,7 @@ export function Nav() {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/app/analyze">App</Link>
                 </Button>
-                <UserButton afterSignOutUrl="/" afterSignOutAll={handleSignOut} />
+                <UserButton afterSignOutUrl="/" />
               </SignedIn>
             </>
           ) : (

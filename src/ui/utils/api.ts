@@ -116,7 +116,11 @@ async function fetchWithRetry(
     // For non-ok responses, we'll handle error extraction in apiRequest
     // Don't throw here for 4xx errors - let apiRequest extract the error message
     if (!response.ok) {
-      // Don't retry on 4xx errors (except 408, 429) - return response for error extraction
+      // Special case: throw on 401 to trigger retry mechanism
+      if (response.status === 401) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      // Don't retry on other 4xx errors (except 408, 429) - return response for error extraction
       if (response.status >= 400 && response.status < 500 && response.status !== 408 && response.status !== 429) {
         return response; // Return non-ok response for error extraction
       }
