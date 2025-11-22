@@ -6,6 +6,7 @@
  */
 
 import { mergeAbortSignals } from './abortSignalPolyfill.js';
+import { env } from '../config/env.js';
 
 interface ApiOptions extends RequestInit {
   timeout?: number;
@@ -15,6 +16,30 @@ interface ApiOptions extends RequestInit {
 
 const DEFAULT_TIMEOUT = 10000; // 10 seconds
 const DEFAULT_RETRIES = 2;
+
+/**
+ * Resolve full URL with base URL from environment
+ */
+function resolveUrl(url: string): string {
+  // If URL is already absolute, return as-is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Get base URL from environment (empty string in production = same-origin)
+  const baseUrl = env.VITE_API_URL || '';
+  
+  // If base URL is empty (production), return relative URL as-is
+  if (!baseUrl) {
+    return url;
+  }
+  
+  // Ensure base URL doesn't end with slash and URL starts with slash
+  const cleanBase = baseUrl.replace(/\/$/, '');
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  
+  return `${cleanBase}${cleanPath}`;
+}
 
 /**
  * Check if error is retryable
@@ -118,13 +143,16 @@ export async function apiRequest<T = unknown>(
   url: string,
   options: ApiOptions = {}
 ): Promise<T> {
+  // Resolve URL with base URL from environment
+  const fullUrl = resolveUrl(url);
+  
   try {
     const start = performance.now();
     const method = (options.method || "GET").toString().toUpperCase();
     let response: Response | undefined = undefined;
     let errorForTiming: unknown = undefined;
     try {
-      response = await fetchWithRetry(url, options);
+      response = await fetchWithRetry(fullUrl, options);
     } catch (err) {
       errorForTiming = err;
       throw err;
@@ -136,7 +164,7 @@ export async function apiRequest<T = unknown>(
         const entry = {
           kind: "api" as const,
           method,
-          url,
+          url: fullUrl,
           status: response?.status ?? "ERR",
           duration_ms: durationMs,
           ok: response?.ok ?? false,
