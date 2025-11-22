@@ -13,6 +13,7 @@ import { MarkDoneOverlay } from "./components/MarkDoneOverlay.js";
 import { DeltaBadge } from "./components/DeltaBadge.js";
 import { Sparkline } from "./components/Sparkline.js";
 import { SupportPopup } from "./components/SupportPopup.js";
+import { SupportQrToggle } from "./components/SupportQrToggle.js";
 
 /**
  * Type for insight data from API (matches CacheEntry structure)
@@ -62,26 +63,14 @@ function createSafeFetch<T>(
         return { data };
       }
       return {};
-    } catch (error: any) {
-      if (options.signal.aborted || !options.isMounted()) {
-        return {};
+    } catch (error) {
+      if (!options.signal.aborted && options.isMounted()) {
+        const errorMsg = error instanceof Error ? error.message : "Unknown error";
+        options.setError(errorMsg);
+        options.onError?.(error);
+        return { error: errorMsg };
       }
-      
-      // Handle specific error cases
-      const errorStatus = error?.status;
-      const errorMsg = error?.message || "Request failed";
-      
-      // 404/403 are valid states for some endpoints
-      if (errorStatus === 404 || errorStatus === 403) {
-        options.setError(undefined);
-        return {};
-      }
-      
-      options.setError(errorMsg);
-      if (options.onError) {
-        options.onError(error);
-      }
-      return { error: errorMsg };
+      return {};
     } finally {
       if (!options.signal.aborted && options.isMounted()) {
         options.setLoading(false);
@@ -536,30 +525,7 @@ export function Dashboard() {
           textAlign: "center",
           boxShadow: "0 0 20px rgba(251, 191, 36, 0.15)"
         }}>
-          <a 
-            href="https://www.paypal.com/qrcodes/p2pqrc/MSFV7T2E9VWUU"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: 700,
-              color: "#fbbf24",
-              textDecoration: "none",
-              display: "inline-block",
-              transition: "all 0.2s ease",
-              textShadow: "0 0 10px rgba(251, 191, 36, 0.3)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.textShadow = "0 0 20px rgba(251, 191, 36, 0.6)";
-              e.currentTarget.style.color = "#f59e0b";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.textShadow = "0 0 10px rgba(251, 191, 36, 0.3)";
-              e.currentTarget.style.color = "#fbbf24";
-            }}
-          >
-            ❤️ Love what we're building? Make it unstoppable—support us.
-          </a>
+          <SupportQrToggle />
         </div>
         <header>
           <h2>Action Guarantee Dashboard</h2>

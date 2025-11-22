@@ -1,4 +1,4 @@
-/* Import design tokens */
+/* Import design tokens FIRST - @import must be before all other statements */
 @import './ui/styles/design-tokens.css';
 
 @tailwind base;

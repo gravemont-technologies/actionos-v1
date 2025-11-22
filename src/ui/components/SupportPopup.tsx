@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/ui/components/ui/dialog";
+import { SupportQrToggle } from "./SupportQrToggle";
 
 type SupportPopupProps = {
   open: boolean;
@@ -6,10 +7,6 @@ type SupportPopupProps = {
 };
 
 export function SupportPopup({ open, onOpenChange }: SupportPopupProps) {
-  const handleSupportClick = () => {
-    window.open('https://www.paypal.com/qrcodes/p2pqrc/MSFV7T2E9VWUU', '_blank', 'noopener,noreferrer');
-    onOpenChange(false);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,37 +105,19 @@ export function SupportPopup({ open, onOpenChange }: SupportPopupProps) {
             </ul>
           </div>
 
-          <div style={{ 
-            marginTop: "1.5rem",
-            display: "flex",
-            gap: "0.75rem",
-            justifyContent: "center",
-          }}>
-            <button
-              onClick={handleSupportClick}
-              style={{
-                padding: "0.75rem 2rem",
-                background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
-                border: "2px solid #fbbf24",
-                color: "#000000",
-                fontSize: "1rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                borderRadius: "6px",
-                boxShadow: "0 0 20px rgba(251, 191, 36, 0.4)",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = "0 0 30px rgba(251, 191, 36, 0.6)";
-                e.currentTarget.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = "0 0 20px rgba(251, 191, 36, 0.4)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              Fuel the next level → Support Now
-            </button>
+          <div
+            style={{
+              marginTop: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.75rem",
+              alignItems: "center",
+            }}
+          >
+            <SupportQrToggle
+              question="Fuel the next level → Support Now"
+              description="Scan the Gravemont Technologies PayPal QR code below to send a contribution instantly."
+            />
             <button
               onClick={() => onOpenChange(false)}
               style={{
