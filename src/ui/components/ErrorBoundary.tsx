@@ -9,7 +9,7 @@ import React, { Component, ErrorInfo, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallback?: ReactNode | ((props: { error: Error; resetErrorBoundary: () => void }) => ReactNode);
 }
 
 interface State {
@@ -54,6 +54,14 @@ export class ErrorBoundary extends Component<Props, State> {
   render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
+        // If fallback is a function, call it with error and reset handler
+        if (typeof this.props.fallback === 'function') {
+          return this.props.fallback({ 
+            error: this.state.error!, 
+            resetErrorBoundary: this.handleReset 
+          });
+        }
+        // Otherwise render as ReactNode
         return this.props.fallback;
       }
 

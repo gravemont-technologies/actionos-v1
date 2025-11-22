@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProfileProvider } from "./contexts/ProfileContext.js";
+import { ProfileErrorFallback } from "./components/ProfileErrorFallback";
 import Landing from "./pages/Landing";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -116,17 +117,19 @@ export function App() {
   return (
     <ErrorBoundary>
       <ClerkProvider>
-        <ProfileProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-            <QueryClientProvider client={queryClient}>
-              <TooltipProvider>
-                <BrowserRouter>
-                  <AppRoutes />
-                </BrowserRouter>
-              </TooltipProvider>
-            </QueryClientProvider>
-          </ThemeProvider>
-        </ProfileProvider>
+        <ErrorBoundary fallback={ProfileErrorFallback}>
+          <ProfileProvider>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+              <QueryClientProvider client={queryClient}>
+                <TooltipProvider>
+                  <BrowserRouter>
+                    <AppRoutes />
+                  </BrowserRouter>
+                </TooltipProvider>
+              </QueryClientProvider>
+            </ThemeProvider>
+          </ProfileProvider>
+        </ErrorBoundary>
       </ClerkProvider>
     </ErrorBoundary>
   );
