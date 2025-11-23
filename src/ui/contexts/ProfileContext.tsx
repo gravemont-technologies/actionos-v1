@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { api } from "../utils/api.js";
+import { useAuthState } from "../auth.js";
 
 interface ProfileContextValue {
   profileId: string | null;
@@ -26,6 +27,7 @@ interface ProfileProviderProps {
  */
 export function ProfileProvider({ children }: ProfileProviderProps) {
   const { user, isLoaded: isClerkLoaded } = useUser();
+  const { headers, isReady: authReady } = useAuthState();
   const [profileId, setProfileIdState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 
   // Fetch profile_id from API when user is authenticated but profileId is not set
   useEffect(() => {
-    if (!isClerkLoaded) {
+    if (!isClerkLoaded || !authReady) {
       return;
     }
 
@@ -82,7 +84,8 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
       try {
         console.log('[ProfileContext] Fetching profile status...');
         const data = await api.get<{ hasProfile: boolean; profileId: string | null }>(
-          "/api/auth/status"
+          "/api/auth/status",
+          { headers }
         );
         
         console.log('[ProfileContext] Auth status response:', data);
@@ -101,7 +104,8 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
           try {
             const createResponse = await api.post<{ profileId: string }>(
               "/api/auth/create-profile",
-              {}
+              {},
+              { headers }
             );
             
             console.log('[ProfileContext] Auto-create response:', createResponse);
@@ -135,7 +139,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     return () => {
       isCancelled = true;
     };
-  }, [user?.id, isClerkLoaded]); // Removed profileId from dependencies to prevent infinite loop
+  }, [user?.id, isClerkLoaded, authReady, headers]); // Wait for auth ready + headers
 
   const setProfileId = (id: string) => {
     setProfileIdState(id);
