@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running TypeScript compiler check..."
+npm run build:server || {
+  echo "❌ TypeScript compilation failed. Fix errors before committing."
+  exit 1
+}
+
+echo "✅ TypeScript compilation successful"

@@ -439,7 +439,7 @@ router.get("/recent-wins", validateOwnership, asyncHandler(async (req, res, next
     // Get signatures for batch fetch
     const signatures = data.map(r => r.signature);
     const cache: SignatureCache = getSignatureCache();
-    const userId = req.userId;
+    const userId = res.locals.userId;
 
     // Fetch titles using getBatchInsights (no N+1 queries)
     const insightsMap = new Map<string, { title?: string }>();
@@ -563,7 +563,7 @@ router.get("/sparkline-data", validateOwnership, asyncHandler(async (req, res, n
     // Get signatures for batch fetch
     const signatures = data.map(r => r.signature);
     const cache: SignatureCache = getSignatureCache();
-    const userId = req.userId;
+    const userId = res.locals.userId;
 
     // Fetch delta_bucket from insights using getBatchInsights (no N+1 queries)
     const insightsMap = new Map<string, { deltaBucket?: string }>();
@@ -674,7 +674,7 @@ router.post("/retrospective", validateOwnership, longTimeoutMiddleware, asyncHan
       user: prompt.user,
       temperature: 0,
       maxTokens: 1000, // Increased from 180 to 1000 to allow complete JSON responses
-      userId: req.userId ?? null,
+      userId: res.locals.userId ?? null,
     });
 
     // Parse and validate with schema

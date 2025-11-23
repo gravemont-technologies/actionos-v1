@@ -12,7 +12,7 @@ const router = Router();
 // Rate limiter: anonymous users (by IP) are limited more strictly than authenticated users (by userId).
 const feedbackLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: (req: any) => (res.locals.userId ? 1000 : 60),
+  max: (req: any, res: any) => (res.locals.userId ? 1000 : 60),
   keyGenerator: (req: any, res: any) => res.locals.userId || req.ip,
   standardHeaders: true,
   legacyHeaders: false,

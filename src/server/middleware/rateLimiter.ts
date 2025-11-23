@@ -32,15 +32,15 @@ function createRateLimiter(options: {
     skipSuccessfulRequests: options.skipSuccessfulRequests || false,
 
     // Use userId for key generation (falls back to IP if no userId)
-    keyGenerator: (req: Request): string => {
-      return req.userId || req.ip || "anonymous";
+    keyGenerator: (req: Request, res: Response): string => {
+      return res.locals.userId || req.ip || "anonymous";
     },
 
     // Custom handler to use our error format
     handler: (req: Request, res: Response) => {
       const requestLogger = logger.child({
         requestId: req.id,
-        userId: req.userId,
+        userId: res.locals.userId,
         ip: req.ip,
       });
       requestLogger.warn("Rate limit exceeded");

@@ -18,6 +18,7 @@ import { computeServerSignature, verifySignature } from "../utils/signature.js";
 import { clerkAuthMiddleware } from "../middleware/clerkAuth.js";
 import { validateOwnership } from "../middleware/validateOwnership.js";
 import { analyzeRateLimiter } from "../middleware/rateLimiter.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { longTimeoutMiddleware } from "../middleware/timeout.js";
 import { ValidationError, ExternalServiceError, RateLimitError } from "../middleware/errorHandler.js";
 import { logger } from "../utils/logger.js";
@@ -166,7 +167,7 @@ router.post("/", validateOwnership, asyncHandler(async (req, res, next) => {
       user: prompt.user,
       temperature: 0,
       maxTokens: 1000, // Increased from 180 to 1000 to allow complete JSON responses
-      userId: req.userId ?? null, // Pass userId for token tracking
+      userId: res.locals.userId ?? null, // Pass userId for token tracking
     });
 
     // Parse and validate with proper error handling
@@ -256,7 +257,7 @@ router.post("/", validateOwnership, asyncHandler(async (req, res, next) => {
           baselineBut: baseline?.but ?? 50,
         },
         {
-          userId: req.userId || undefined, // Set user_id for future insights
+          userId: res.locals.userId || undefined, // Set user_id for future insights
         }
       );
     }
@@ -307,7 +308,7 @@ const followUpSchema = z.object({
 router.post("/follow-up", validateOwnership, longTimeoutMiddleware, async (req, res, next) => {
   const requestLogger = logger.child({
     requestId: req.id,
-    userId: req.userId,
+    userId: res.locals.userId,
     profileId: req.body?.profile_id,
   });
 
@@ -383,7 +384,7 @@ router.post("/follow-up", validateOwnership, longTimeoutMiddleware, async (req, 
       user: prompt.user,
       temperature: 0,
       maxTokens: 1000, // Increased from 180 to 1000 to allow complete JSON responses
-      userId: req.userId ?? null,
+      userId: res.locals.userId ?? null,
     });
 
     // Parse and validate with proper error handling
@@ -475,7 +476,7 @@ const microNudgeSchema = z.object({
 router.post("/micro-nudge", validateOwnership, async (req, res, next) => {
   const requestLogger = logger.child({
     requestId: req.id,
-    userId: req.userId,
+    userId: res.locals.userId,
     profileId: req.body?.profile_id,
   });
 
@@ -509,7 +510,7 @@ router.post("/micro-nudge", validateOwnership, async (req, res, next) => {
       user: prompt.user,
       temperature: 0.3, // Slightly higher for variety while maintaining quality
       maxTokens: 80, // Increased from 50 to allow for more sophisticated nudges (still short)
-      userId: req.userId ?? null,
+      userId: res.locals.userId ?? null,
     });
 
     // Clean up the response (remove quotes, JSON formatting if present)
