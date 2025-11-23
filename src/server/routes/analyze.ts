@@ -288,7 +288,7 @@ router.post("/", validateOwnership, asyncHandler(async (req, res, next) => {
     // LLM errors are external service errors
     return next(new ExternalServiceError(errorMessage, "OpenAI"));
   }
-});
+}));
 
 // Follow-Up Analysis endpoint
 const followUpSchema = z.object({
