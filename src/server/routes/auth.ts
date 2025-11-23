@@ -32,6 +32,8 @@ router.get("/status", asyncHandler(async (req, res) => {
   res.json({
     authenticated: true,
     userId,
+    hasProfile: !!profile,
+    profileId: profile?.profile_id || null,
     profile: profile || null, // Return the full profile or null
   });
 }));
@@ -58,7 +60,11 @@ router.post("/create-profile", asyncHandler(async (req, res) => {
   }
 
   if (existingProfile) {
-    return res.status(200).json({ profile: existingProfile, message: 'Profile already exists.' });
+    return res.status(200).json({ 
+      profileId: existingProfile.profile_id,
+      profile: existingProfile, 
+      message: 'Profile already exists.' 
+    });
   }
 
   // 2. Create a new profile with default values
@@ -80,7 +86,10 @@ router.post("/create-profile", asyncHandler(async (req, res) => {
     throw new AppError('DB_INSERT_FAILED', 'Failed to create profile', 500);
   }
 
-  res.status(201).json({ profile: newProfile });
+  res.status(201).json({ 
+    profileId: newProfile.profile_id,
+    profile: newProfile 
+  });
 }));
 
 export default router;

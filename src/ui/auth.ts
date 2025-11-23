@@ -142,6 +142,9 @@ export function useAuthState(): { headers: Record<string, string>; isReady: bool
               setIsReady(true);
             });
           } else {
+            console.warn('[useAuthState] No token returned from getToken()');
+            // Clear potentially stale cache
+            sessionStorage.removeItem(`clerk_token_${userId}`);
             flushSync(() => {
               setHeaders({ "x-clerk-user-id": userId });
               setIsReady(true);
