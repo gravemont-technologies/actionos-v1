@@ -135,7 +135,7 @@ export function useAuthState(): { headers: Record<string, string>; isReady: bool
 
         // Fetch fresh token if not cached
         console.log('[useAuthState] Fetching fresh token from Clerk...');
-        const token = await getToken();
+        const token = await getToken({ template: 'actionos' });
         console.log('[useAuthState] Token result:', { hasToken: !!token, tokenLength: token?.length });
         
         if (!cancelled) {
