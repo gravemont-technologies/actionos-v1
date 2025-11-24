@@ -65,13 +65,14 @@
     console.log('─────────────────────────────────────');
     
     const checks = [
-      { name: 'userId', required: true, value: payload.userId },
-      { name: 'sid', required: true, value: payload.sid },
+      { name: 'sub (subject)', required: true, value: payload.sub },
+      { name: 'userId', required: false, value: payload.userId },
+      { name: 'sid', required: false, value: payload.sid },
+      { name: 'jti', required: false, value: payload.jti },
       { name: 'email', required: false, value: payload.email },
       { name: 'firstName', required: false, value: payload.firstName },
       { name: 'lastName', required: false, value: payload.lastName },
       { name: 'iss (issuer)', required: true, value: payload.iss },
-      { name: 'sub (subject)', required: true, value: payload.sub },
       { name: 'exp (expiration)', required: true, value: payload.exp },
     ];
 
@@ -100,12 +101,8 @@
     } else {
       console.error('❌ MISSING REQUIRED CLAIMS!');
       console.error('\nAction needed:');
-      if (!payload.userId) {
-        console.error('- Add "userId": "{{user.id}}" to JWT template Claims');
-      }
-      if (!payload.sid) {
-        console.error('- DO NOT add sid manually - Clerk adds it automatically');
-        console.error('- If sid is missing, contact Clerk support (this should never happen)');
+      if (!payload.sub) {
+        console.error('- Token missing sub. Check Clerk JWT template configuration.');
       }
     }
 

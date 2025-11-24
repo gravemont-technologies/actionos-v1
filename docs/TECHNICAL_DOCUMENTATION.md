@@ -856,13 +856,11 @@ const token = await getToken();
 **Backend:**
 ```typescript
 // Verify JWT token
-import { verifyToken } from "@clerk/backend";
+import { verifyClerkJwtToken } from "../server/middleware/utils/clerkTokenVerifier";
 
-const { userId } = await verifyToken(token, {
-  secretKey: CLERK_SECRET_KEY
-});
+const { userId, sessionId } = await verifyClerkJwtToken(token);
 
-// Development: Header-based auth
+// Development: Header-based auth (fallback)
 const userId = req.headers["x-clerk-user-id"];
 ```
 

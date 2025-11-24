@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyToken } from '@clerk/backend';
+import { verifyClerkJwtToken } from '../src/server/middleware/utils/clerkTokenVerifier.js';
 
 // Simple in-memory rate limiter for the debug endpoint to prevent abuse.
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -52,28 +52,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let verificationResult: any = null;
   if (token) {
     try {
-      const secretKey = process.env.CLERK_SECRET_KEY;
-      if (!secretKey) {
-        throw new Error('CLERK_SECRET_KEY is not configured on the server.');
-      }
-      
-      const payload = await verifyToken(token, { secretKey });
-      const userId = payload.userId;
-      
-      if (!userId) {
-        throw new Error('Token is valid but missing userId claim.');
-      }
-      
+      const { userId, sessionId, payload } = await verifyClerkJwtToken(token);
+      const expiresAt = typeof payload.exp === 'number' ? new Date(payload.exp * 1000).toISOString() : null;
+
       verificationResult = {
         valid: true,
         userId,
-        sessionId: payload.sid,
-        expiresAt: new Date(payload.exp * 1000).toISOString(),
+        sessionId,
+        expiresAt,
+        claims: payload,
       };
     } catch (error: any) {
       verificationResult = { 
         valid: false,
-        code: error.code || 'UNKNOWN',
+        code: error.code || error.name || 'UNKNOWN',
         // Sanitize error message in non-development environments
         detail: process.env.VERCEL_ENV === 'development' ? error.message : 'Verification failed.',
       };

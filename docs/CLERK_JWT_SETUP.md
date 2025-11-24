@@ -1,7 +1,7 @@
 # Clerk JWT Template Setup
 
 ## Problem
-The backend expects JWT tokens with `userId` and `sid` claims, but Clerk's default tokens don't include these. This causes 401 authentication errors.
+The backend now validates Clerk-issued JWTs via JWKS and relies on the token's `sub` claim for the authenticated user. Clerk includes `sub` by default, but our tooling benefits from a few extra aliased claims (like `userId`) and, when present, the session identifier. If your template omits these helpful claims you lose observability data and may see confusing log output during debugging.
 
 ## Solution: Create Custom JWT Template
 
@@ -13,18 +13,19 @@ The backend expects JWT tokens with `userId` and `sid` claims, but Clerk's defau
 1. In sidebar, navigate to: **Configure** → **JWT Templates**
 2. Click **"New template"**
 3. Enter these details:
-   - **Name:** `actionos`
-   - **Template type:** Blank
-   - **Claims:**
-   ```json
-   {
-     "userId": "{{user.id}}",
-     "sid": "{{session.id}}",
-     "email": "{{user.primary_email_address}}",
-     "firstName": "{{user.first_name}}",
-     "lastName": "{{user.last_name}}"
-   }
-   ```
+    - **Name:** `actionos`
+    - **Template type:** Blank
+    - **Claims:**
+    ```json
+    {
+       "userId": "{{user.id}}",
+       "sid": "{{session.id}}",
+       "email": "{{user.primary_email_address}}",
+       "firstName": "{{user.first_name}}",
+       "lastName": "{{user.last_name}}"
+    }
+    ```
+    > ℹ️ The backend only requires the standard `sub` claim, which Clerk sets automatically. Including `sid` is optional but keeps parity with legacy logs; if you drop it the API will fall back to the token `jti` instead.
 4. Click **"Save"**
 
 ### Step 3: Verify Template Name
@@ -43,11 +44,13 @@ const token = await getToken({ template: 'actionos' }); // Change 'actionos' to 
    - No more 401 errors on `/api/auth/status`
 
 ## Required Claims
-The backend middleware expects these claims in the JWT:
-- **`userId`** (string) - User's unique identifier
-- **`sid`** (string) - Session ID
+The middleware enforces only the standard JWT subject:
+- **`sub`** (string) – Provided by Clerk automatically and mapped to `res.locals.userId`
 
-Additional claims like `email`, `firstName`, `lastName` are optional but useful for future features.
+Optional but recommended:
+- **`userId`** (string) – Mirrors `sub` for easier debugging in logs
+- **`sid`** (string) – Session identifier surfaced in metrics when available (falls back to `jti` if omitted)
+- **Profile data** – `email`, `firstName`, `lastName` remain handy for future product work but are not required.
 
 ## Troubleshooting
 

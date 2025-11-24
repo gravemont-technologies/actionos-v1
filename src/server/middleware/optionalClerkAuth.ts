@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '@clerk/backend';
+import { AppError } from './errorHandler.js';
+import { verifyClerkJwtToken } from './utils/clerkTokenVerifier.js';
 
 /**
  * An optional authentication middleware for Clerk.
@@ -16,39 +17,29 @@ export async function optionalClerkAuthMiddleware(
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.replace('Bearer ', '').trim();
+    const token = authHeader?.replace(/^Bearer\s+/i, '').trim();
 
     // If no token is present, just continue to the next middleware.
     if (!token) {
       return next();
     }
 
-    const secretKey = process.env.CLERK_SECRET_KEY;
-    // If a token is present but the server is not configured to verify it,
-    // it's better to log an error and proceed without authentication.
-    if (!secretKey) {
-      console.error('[optionalClerkAuth] A token was provided, but CLERK_SECRET_KEY is not configured.');
-      return next();
-    }
-
     // A token is present, so we attempt to verify it.
-    const payload = await verifyToken(token, { secretKey });
-    
-    const userId = payload.userId;
-    if (userId && typeof userId === 'string') {
+    const { userId, sessionId } = await verifyClerkJwtToken(token);
+
+    if (userId) {
       res.locals.userId = userId;
-      res.locals.sessionId = payload.sid;
+      res.locals.sessionId = sessionId ?? undefined;
     }
     
     next();
   } catch (error: any) {
-    // If the token is present but invalid (expired, malformed, etc.),
-    // we pass an error to the central handler. This is an actual error state.
-    const errorCode = error.code || 'TOKEN_INVALID';
-    const errorMessage = error.message || 'Authentication failed';
-    
-    console.error(`[optionalClerkAuth] ${errorCode}:`, errorMessage);
-    
-    next({ status: 401, message: 'Provided token is invalid', code: errorCode, detail: errorMessage });
+    if (error.code && error.statusCode) {
+      return next(error);
+    }
+
+    const message = error?.message || 'Authentication failed';
+    console.error('[optionalClerkAuth] TOKEN_INVALID:', message);
+    next(new AppError('TOKEN_INVALID', message, 401));
   }
 }

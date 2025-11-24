@@ -5,7 +5,7 @@ declare global {
   namespace Express {
     interface Locals {
       userId: string;
-      sessionId: string;
+      sessionId?: string | null;
     }
   }
 }
