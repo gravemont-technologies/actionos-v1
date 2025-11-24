@@ -32,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Generate full UUID v4 for profile_id (low collision probability)
-    const profileId = randomUUID();
+    let profileId = randomUUID();
     
     // Retry logic for handling rare race conditions
     const maxRetries = 3;
@@ -73,6 +73,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             message: 'Profile already exists (created concurrently)'
           });
         }
+        
+        // Generate new UUID for next retry attempt
+        profileId = randomUUID();
       }
 
       insertError = error;
