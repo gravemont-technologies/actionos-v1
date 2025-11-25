@@ -3,6 +3,7 @@ import { getSupabaseClient } from "../db/supabase.js";
 import { clerkAuthMiddleware } from "../middleware/clerkAuth.js";
 import { logger } from "../utils/logger.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { randomBytes } from "crypto";
 import { AppError } from "../middleware/errorHandler.js";
 
 const router = Router();
@@ -67,28 +68,59 @@ router.post("/create-profile", asyncHandler(async (req, res) => {
     });
   }
 
-  // 2. Create a new profile with default values
-  const { data: newProfile, error: insertError } = await supabase
-    .from("profiles")
-    .insert({
-      user_id: userId,
-      tags: [],
-      baseline_ipp: 50.0,
-      baseline_but: 50.0,
-      strengths: [],
-      consent_to_store: true,
-    })
-    .select()
-    .single();
 
-  if (insertError) {
+  // 2. Create a new profile with default values
+  // Generate a stable random profile_id and retry if a rare collision occurs
+  function generateHexId() {
+    return randomBytes(8).toString('hex');
+  }
+  function isValidHexId(id: string) {
+    return /^[a-f0-9]{8,}$/.test(id);
+  }
+  let profileId = generateHexId();
+  let newProfile: any = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (!isValidHexId(profileId)) {
+      logger.error({ userId, profileId }, "Generated invalid profile_id");
+      profileId = generateHexId();
+      continue;
+    }
+    const { data, error: insertError } = await supabase
+      .from("profiles")
+      .insert({
+        profile_id: profileId,
+        user_id: userId,
+        tags: [],
+        baseline_ipp: 50.0,
+        baseline_but: 50.0,
+        strengths: [],
+        consent_to_store: true,
+      })
+      .select()
+      .single();
+
+    if (!insertError && data) {
+      newProfile = data;
+      break;
+    }
+
+    // If conflict on profile_id, generate a new one and retry
+    if (insertError && insertError.code === "23505") {
+      profileId = generateHexId();
+      continue;
+    }
+
     logger.error({ userId, error: insertError }, "Failed to create profile");
     throw new AppError('DB_INSERT_FAILED', 'Failed to create profile', 500);
   }
 
-  res.status(201).json({ 
+  if (!newProfile) {
+    throw new AppError('DB_INSERT_FAILED', 'Failed to create profile after retries', 500);
+  }
+
+  res.status(201).json({
     profileId: newProfile.profile_id,
-    profile: newProfile 
+    profile: newProfile,
   });
 }));
 

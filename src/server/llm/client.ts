@@ -252,6 +252,9 @@ function createProvider(): LLMProvider {
   const apiKey = env.OPENAI_API_KEY;
   if (apiKey) {
     const model = env.OPENAI_MODEL;
+    // Diagnostic: log first and last 6 chars of key, and length
+    const safeKey = `${apiKey.slice(0, 6)}...${apiKey.slice(-6)}`;
+    logger.info({ model, keyPreview: safeKey, keyLength: apiKey.length }, "[DIAGNOSTIC] OpenAI API key loaded");
     logger.info({ model, keyPrefix: apiKey.substring(0, 7) + "..." }, "OpenAI provider initialized");
     return new OpenAIProvider(apiKey, model);
   }

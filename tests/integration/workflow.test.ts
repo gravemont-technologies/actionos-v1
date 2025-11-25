@@ -47,7 +47,7 @@ describe("E2E: Complete User Workflow", () => {
       responses[q.id] = q.options[0].id;
     });
 
-    const profileResponse = await authenticatedRequest("post", "/api/onboarding/profile")
+    const profileResponse = await authenticatedRequest("post", "/api/onboarding/submit")
       .send({ responses })
       .expect(200);
 

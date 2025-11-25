@@ -9,7 +9,7 @@ import { normalizeValue, normalizeConstraints } from "../../src/shared/signature
 const mockUserId = "user_test_123";
 const mockProfileId = "deadbeef12345678"; // Must be ≥8 hex chars to match schema constraint
 
-// Helper to create authenticated request
+// Helper to create authenticated request (auth mocked globally in tests/setup.ts)
 function authenticatedRequest(method: "get" | "post" | "put" | "delete", path: string) {
   return request(app)[method](path).set("x-clerk-user-id", mockUserId);
 }

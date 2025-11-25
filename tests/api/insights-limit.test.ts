@@ -7,7 +7,7 @@ import { getSupabaseClient } from "../../src/server/db/supabase.js";
 const mockUserId = "user_test_limit_456";
 const mockProfileId = "cafebabe87654321"; // Must be ≥8 hex chars
 
-// Helper to create authenticated request
+// Helper to create authenticated request (auth mocked globally in tests/setup.ts)
 function authenticatedRequest(method: "get" | "post" | "delete", path: string) {
   return request(app)[method](path).set("x-clerk-user-id", mockUserId);
 }

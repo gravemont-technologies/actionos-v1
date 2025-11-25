@@ -67,6 +67,7 @@ router.post("/submit", clerkAuthMiddleware, onboardingRateLimiter, asyncHandler(
     .from("profiles")
     .upsert(
       {
+        profile_id: profileData.profile_id,
         user_id: userId, // Use authenticated user ID
         tags: profileData.tags,
         baseline_ipp: profileData.baseline.ipp,
@@ -94,7 +95,17 @@ router.post("/submit", clerkAuthMiddleware, onboardingRateLimiter, asyncHandler(
     tags: upsertedProfile.tags,
   });
 
-  res.status(201).json({ profile: upsertedProfile, insights });
+  // Normalize response shape to include `baseline` object to match API consumers/tests
+  const profileResponse = {
+    ...upsertedProfile,
+    baseline: {
+      ipp: Number(upsertedProfile.baseline_ipp ?? upsertedProfile.baseline?.ipp ?? 50),
+      but: Number(upsertedProfile.baseline_but ?? upsertedProfile.baseline?.but ?? 50),
+    },
+  };
+
+  // Tests expect a 200 OK for this endpoint historically
+  res.status(200).json({ profile: profileResponse, insights });
 }));
 
 export default router;

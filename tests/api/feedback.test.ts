@@ -6,6 +6,7 @@ import { getSupabaseClient } from "../../src/server/db/supabase.js";
 const mockUserId = "user_test_123";
 const mockProfileId = "beefcafe12345678"; // Must be ≥8 hex chars
 
+// Helper to make authenticated requests (now works via global mock in tests/setup.ts)
 function authenticatedRequest(method: "get" | "post", path: string) {
   return request(app)[method](path).set("x-clerk-user-id", mockUserId);
 }
@@ -18,7 +19,8 @@ describe("API: /api/step-feedback", () => {
     // Create test profile and active step
     const supabase = getSupabaseClient();
     testProfileId = mockProfileId;
-    testSignature = "test_signature_" + Date.now();
+    // Generate valid 64-char hex signature
+    testSignature = "feedface" + "a".repeat(56);
 
     await supabase.from("profiles").upsert({
       profile_id: testProfileId,

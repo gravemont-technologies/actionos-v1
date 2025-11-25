@@ -216,3 +216,10 @@ class TokenTracker {
 }
 
 export const tokenTracker = new TokenTracker();
+
+// Backwards-compatible alias used by older tests
+// Keep this exported method to avoid breaking tests expecting `getUsageStats`
+// Delegates to `getUsage` which returns the same shape
+;(tokenTracker as any).getUsageStats = async function (userId: string | null) {
+  return tokenTracker.getUsage(userId);
+};

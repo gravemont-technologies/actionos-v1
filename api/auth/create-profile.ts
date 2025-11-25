@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyRequest } from '../_lib/verify';
 import { createClient } from '@supabase/supabase-js';
-import { randomUUID } from 'crypto';
+import { randomBytes } from 'crypto';
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -31,8 +31,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Generate full UUID v4 for profile_id (low collision probability)
-    let profileId = randomUUID();
+    // Generate 16-char lowercase hex for profile_id (matches DB constraint)
+    let profileId = randomBytes(8).toString('hex');
+    const isValidProfileId = /^[a-f0-9]{16,}$/.test(profileId);
+    if (!isValidProfileId) {
+      console.error('[auth/create-profile] Generated invalid profile_id:', profileId);
+      return res.status(500).json({ error: 'PROFILE_ID_INVALID', detail: 'Generated profile_id does not match DB constraint' });
+    }
+    console.log('[auth/create-profile] Attempting profile_id:', profileId);
     
     // Retry logic for handling rare race conditions
     const maxRetries = 3;
@@ -49,6 +55,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
         .select('profile_id')
         .single();
+      if (error && error.message && error.message.includes('profile_id')) {
+        console.error('[auth/create-profile] Insert failed due to profile_id constraint:', profileId, error.message);
+      }
 
       if (!error) {
         profile = data;
@@ -74,8 +83,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
-        // Generate new UUID for next retry attempt
-        profileId = randomUUID();
+        // Generate new 16-char hex for next retry attempt
+        profileId = randomBytes(8).toString('hex');
+        if (!/^[a-f0-9]{16,}$/.test(profileId)) {
+          console.error('[auth/create-profile] Retry generated invalid profile_id:', profileId);
+          return res.status(500).json({ error: 'PROFILE_ID_INVALID', detail: 'Retry generated profile_id does not match DB constraint' });
+        }
+        console.log('[auth/create-profile] Retry attempt profile_id:', profileId);
       }
 
       insertError = error;

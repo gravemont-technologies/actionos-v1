@@ -32,7 +32,7 @@ async function onboardProfile() {
       responses[question.id] = question.options[0].id;
     }
   });
-  const profileResponse = await authenticatedRequest("post", "/api/onboarding/profile")
+  const profileResponse = await authenticatedRequest("post", "/api/onboarding/submit")
     .send({ responses })
     .expect(200);
   const profileId = profileResponse.body.profile?.profile_id;

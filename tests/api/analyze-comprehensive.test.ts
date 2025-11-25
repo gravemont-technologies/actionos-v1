@@ -18,6 +18,7 @@ import { computeServerSignature } from "../../src/server/utils/signature.js";
 const mockUserId = "user_test_comprehensive";
 const mockProfileId = "cafe1234babe5678"; // Must be ≥8 hex chars to match schema constraint
 
+// Helper to make authenticated requests (auth mocked globally in tests/setup.ts)
 function authenticatedRequest(method: "get" | "post", path: string) {
   return request(app)[method](path).set("x-clerk-user-id", mockUserId);
 }

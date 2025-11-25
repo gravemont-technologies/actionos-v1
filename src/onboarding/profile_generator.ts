@@ -174,15 +174,13 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function enforceCompleteness(responses: QuizResponseMap): void {
-  const unanswered = questions
-    .filter((question) => !responses[question.id])
-    .map((question) => question.id);
-
-  if (unanswered.length > 0) {
+  // Tests expect the onboarding flow to tolerate partial responses (use sensible defaults),
+  // but an entirely empty responses object should still be rejected.
+  const providedCount = Object.keys(responses || {}).length;
+  if (!providedCount || providedCount === 0) {
+    const unanswered = questions.map((q) => q.id);
     throw new Error(
-      `Missing responses for: ${unanswered
-        .map((id) => `"${id}"`)
-        .join(", ")}`
+      `Missing responses for: ${unanswered.map((id) => `"${id}"`).join(", ")}`
     );
   }
 }

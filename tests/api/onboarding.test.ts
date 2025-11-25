@@ -5,6 +5,7 @@ import { getSupabaseClient } from "../../src/server/db/supabase.js";
 
 const mockUserId = "user_test_123";
 
+// Helper to make authenticated requests (auth mocked globally in tests/setup.ts)
 function authenticatedRequest(method: "get" | "post", path: string) {
   return request(app)[method](path).set("x-clerk-user-id", mockUserId);
 }
@@ -83,9 +84,9 @@ describe("API: /api/onboarding", () => {
     });
   });
 
-  describe("POST /api/onboarding/profile", () => {
+  describe("POST /api/onboarding/submit", () => {
     it("should validate responses format", async () => {
-      const response = await authenticatedRequest("post", "/api/onboarding/profile")
+      const response = await authenticatedRequest("post", "/api/onboarding/submit")
         .send({
           // Missing responses
         })
@@ -107,7 +108,7 @@ describe("API: /api/onboarding", () => {
         responses[q.id] = q.options[0].id;
       });
 
-      const response = await authenticatedRequest("post", "/api/onboarding/profile")
+      const response = await authenticatedRequest("post", "/api/onboarding/submit")
         .send({ responses })
         .expect(200);
 
@@ -132,7 +133,7 @@ describe("API: /api/onboarding", () => {
         responses[q.id] = q.options[0].id;
       });
 
-      const response = await authenticatedRequest("post", "/api/onboarding/profile")
+      const response = await authenticatedRequest("post", "/api/onboarding/submit")
         .send({ responses })
         .expect(200);
 
@@ -161,7 +162,7 @@ describe("API: /api/onboarding", () => {
       // Only answer first question
       responses[questions[0].id] = questions[0].options[0].id;
 
-      const response = await authenticatedRequest("post", "/api/onboarding/profile")
+      const response = await authenticatedRequest("post", "/api/onboarding/submit")
         .send({ responses })
         .expect(200); // Should still work with defaults
 
