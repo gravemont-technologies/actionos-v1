@@ -11,7 +11,8 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "types": ["node", "./src/types/express.d.ts"],
+    "types": ["node"],
+    "typeRoots": ["./types", "./node_modules/@types"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

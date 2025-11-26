@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from 'vercel';
 import { verifyRequest } from '../_lib/verify';
 import { createClient } from '@supabase/supabase-js';
 

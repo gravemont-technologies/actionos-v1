@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from 'vercel';
 import { verifyClerkJwtToken } from '../src/server/middleware/utils/clerkTokenVerifier.js';
 
 // Simple in-memory rate limiter for the debug endpoint to prevent abuse.

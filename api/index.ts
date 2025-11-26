@@ -5,7 +5,7 @@
  * Imports from compiled output (dist/server) for production.
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from 'vercel';
 
 // Lazy-load Express app (only once per cold start)
 let appInstance: any = null;
